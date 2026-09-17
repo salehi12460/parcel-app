@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#f6f8fc">
 <title>سامانه مدیریت مرسولات</title>
 <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@zxing/browser@0.1.5/umd/index.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@zxing/browser@0.2.1/umd/zxing-browser.min.js"></script>
 <style>
 :root{--ink:#173b67;--muted:#708097;--blue:#1769aa;--blue2:#eaf3ff;--green:#079b68;--green2:#e8f8f1;--amber:#b77908;--amber2:#fff7df;--red:#c24141;--line:#e4eaf2;--bg:#f5f7fb;--card:#fff;--shadow:0 5px 20px rgba(31,57,89,.07);--r:22px}
 *{box-sizing:border-box} html,body{margin:0;padding:0;background:var(--bg);color:var(--ink);font-family:Tahoma,"Segoe UI",Arial,sans-serif} body{min-height:100vh} button,input,select{font:inherit} button{cursor:pointer} .app{width:min(100%,760px);margin:auto;padding:12px 14px 30px} 
@@ -247,35 +247,43 @@ async function startLiveScan(){
     status.textContent='مرورگر فعلی API دوربین را در اختیار صفحه قرار نمی‌دهد.';
     return;
   }
-  if(!window.ZXingBrowser || !window.ZXingBrowser.BrowserMultiFormatReader){
-    status.textContent='موتور اسکن بارکد بارگذاری نشده است؛ اینترنت را بررسی و صفحه را تازه‌سازی کنید.';
-    return;
-  }
-
   try{
-    scanReader=new ZXingBrowser.BrowserMultiFormatReader();
+    // اول خود دوربین را مستقیماً باز می‌کنیم تا مطمئن شویم مشکل از لایه اسکن نیست.
+    // بعد همان stream را به ZXing می‌دهیم.
+    scanStream=await navigator.mediaDevices.getUserMedia({
+      audio:false,
+      video:{facingMode:{ideal:'environment'},width:{ideal:1280},height:{ideal:720}}
+    });
+    video.srcObject=scanStream;
+    await video.play();
     scanActive=true;
     status.textContent='دوربین فعال شد؛ بارکد را داخل کادر قرار دهید.';
 
-    // مهم: دیگر قبل از گرفتن مجوز، listVideoInputDevices() را صدا نمی‌زنیم.
-    // این روش مستقیماً دوربین پشت را با facingMode می‌خواهد و روی Chrome Android پایدارتر است.
-    scanControls=await scanReader.decodeFromConstraints(
-      {video:{facingMode:{ideal:'environment'},width:{ideal:1280},height:{ideal:720}}},
-      video,
-      (result,err)=>{
-        if(!scanActive) return;
-        if(result){
-          const value=(result.getText?result.getText():result.text||'').trim();
-          if(value && value!==scanLast){
-            scanLast=value;
-            autoSaveScanned(value);
-            if(navigator.vibrate) navigator.vibrate(120);
+    if(!window.ZXingBrowser || !window.ZXingBrowser.BrowserMultiFormatReader){
+      status.textContent='تصویر دوربین فعال است، اما موتور تشخیص بارکد بارگذاری نشده؛ صفحه را یک‌بار تازه‌سازی کنید.';
+      return;
+    }
+
+    scanReader=new ZXingBrowser.BrowserMultiFormatReader();
+    if(typeof scanReader.decodeFromStream==='function'){
+      scanControls=await scanReader.decodeFromStream(
+        scanStream,
+        video,
+        (result,err)=>{
+          if(!scanActive) return;
+          if(result){
+            const value=(result.getText?result.getText():result.text||'').trim();
+            if(value && value!==scanLast){
+              scanLast=value;
+              autoSaveScanned(value);
+              if(navigator.vibrate) navigator.vibrate(120);
+            }
           }
         }
-      }
-    );
-    // اگر مرورگر کتابخانه قدیمی‌تری داشت، نبودن controls را خطا تلقی نمی‌کنیم.
-    if(video.paused) await video.play().catch(()=>{});
+      );
+    } else {
+      status.textContent='دوربین فعال است؛ نسخه موتور اسکن با این مرورگر سازگار نیست.';
+    }
   }catch(e){
     console.error('Live scanner error:',e);
     scanActive=false;
