@@ -45,6 +45,8 @@
 .archive-day.open{background:#dcecff}.archive-items{display:none}.archive-items.open{display:block}.archive-day .arrow{display:inline-block;transition:transform .2s}.archive-day.open .arrow{transform:rotate(180deg)}
 
 .archive-row{border:1px solid #dbe5ef;border-radius:11px;background:#fff;margin:8px 0;overflow:hidden}.archive-summary{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:12px;cursor:pointer}.archive-summary>div{min-width:0;display:flex;flex-direction:column;gap:5px}.archive-barcode{font-weight:800;direction:ltr;text-align:right;font-size:14px;color:#173b67;word-break:break-all}.archive-name{font-size:13px;color:#465b70}.archive-more{font-size:11px;color:#1769aa;white-space:nowrap}.archive-detail{display:none;padding:0 12px 12px;border-top:1px dashed #d5e0eb}.archive-row.open .archive-detail{display:block}.archive-row.open .archive-more{color:#b45309}.archive-row.open .archive-more::first-letter{color:#b45309}
+
+.photo-scan-actions{margin-top:9px}.photo-scan-actions .mainbtn{width:100%;background:#079b68;color:#fff}.scan-photo-result{font-size:12px;line-height:1.8;color:#40546b;margin-top:8px;text-align:center}.scan-photo-result img{display:block;width:100%;max-height:180px;object-fit:contain;border:1px solid #d5e1ed;border-radius:12px;margin-top:7px;background:#f7fafc}.scan-photo-result .detected-code{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:9px 10px;margin-top:8px;background:#f1f8f5;border:1px solid #b8e5d0;border-radius:10px;color:#173b67;direction:ltr}.scan-photo-result .detected-code button{border:0;border-radius:8px;padding:7px 10px;background:#079b68;color:#fff;font-weight:700}.scan-photo-result .photo-note{margin-top:8px;color:#40546b}.scan-photo-result canvas{display:block;width:100%;max-height:220px;object-fit:contain;border:1px solid #d5e1ed;border-radius:12px;margin-top:7px;background:#f7fafc}
 </style>
 <style id="readability-fit-v17">
 /* نسخه خوانا و فیت گوشی */
@@ -157,7 +159,16 @@ body{font-size:16px;-webkit-text-size-adjust:100%;text-rendering:optimizeLegibil
 
 <div class="modal" id="deliveryModal"><div class="sheet"><div class="sheet-head"><h3>ثبت نهایی تحویل</h3><button class="close" data-close="deliveryModal">×</button></div><p class="hint">مشخصات تحویل‌گیرنده را وارد کنید. تاریخ و ساعت هنگام ثبت، خودکار ذخیره می‌شود.</p><div class="formgrid"><div class="field full"><label>نام و نام خانوادگی تحویل‌گیرنده *</label><input id="receiverInput" placeholder="مثلاً صالح کوتاه"></div><div class="field"><label>شماره تماس *</label><input id="phoneInput" inputmode="tel" placeholder="مثلاً 0912xxxxxxxx"></div><div class="field"><label>تصویر تحویل (اختیاری)</label><input class="file" id="photoInput" type="file" accept="image/*" capture="environment"></div><div class="field full"><label>امضا *</label><div class="signature-wrap"><canvas id="signatureCanvas" width="600" height="250"></canvas></div><button class="mainbtn gray" id="clearSignature" style="margin-top:7px;height:38px">پاک کردن امضا</button></div></div><div class="sheet-actions"><button class="mainbtn gray" data-close="deliveryModal">انصراف</button><button class="mainbtn green" id="confirmDelivery">ثبت تحویل</button></div></div></div>
 
-<div class="modal" id="scanModal"><div class="sheet"><div class="sheet-head"><h3>اسکن زنده QR و بارکد</h3><button class="close" data-close="scanModal">×</button></div><div class="scan-box"><video id="scanVideo" autoplay playsinline muted></video><div class="scan-guide"></div></div><div class="scan-status" id="scanStatus">دوربین را مقابل QR یا بارکد قرار دهید؛ پس از تشخیص، ذخیره خودکار انجام می‌شود.</div><div class="sheet-actions"><button class="mainbtn gray scan-stop" id="stopScanBtn">توقف دوربین</button><button class="mainbtn blue" id="restartScanBtn">شروع اسکن زنده</button></div></div></div>
+<div class="modal" id="scanModal"><div class="sheet"><div class="sheet-head"><h3>اسکن زنده QR و بارکد</h3><button class="close" data-close="scanModal">×</button></div><div class="scan-box"><video id="scanVideo" autoplay playsinline muted></video><div class="scan-guide"></div></div><div class="scan-status" id="scanStatus">دوربین را مقابل QR یا بارکد قرار دهید؛ پس از تشخیص، ذخیره خودکار انجام می‌شود.</div><div class="sheet-actions">
+<button class="mainbtn gray scan-stop" id="stopScanBtn">توقف دوربین</button>
+<button class="mainbtn blue" id="restartScanBtn">شروع اسکن زنده</button>
+</div>
+<div class="photo-scan-actions">
+  <input id="barcodePhotoInput" type="file" accept="image/*" capture="environment" hidden>
+  <button class="mainbtn green" id="photoScanBtn">📷 گرفتن عکس و استخراج بارکد</button>
+</div>
+<div class="scan-photo-result" id="scanPhotoResult"></div><div class="sheet-actions" id="photoSaveActions" style="display:none;margin-top:10px"><button class="mainbtn green" id="savePhotoCodesBtn">ذخیره کدهای تشخیص‌داده‌شده</button></div>
+</div></div>
 <div class="modal" id="profileModal"><div class="sheet"><div class="sheet-head"><h3>اطلاعات دفتر</h3><button class="close" data-close="profileModal">×</button></div><div class="formgrid"><div class="field full"><label>نام دفتر</label><input id="officeInput"></div><div class="field"><label>شهر / روستا</label><input id="cityInput"></div><div class="field"><label>نام مدیر</label><input id="managerInput"></div></div><div class="sheet-actions"><button class="mainbtn gray" data-close="profileModal">انصراف</button><button class="mainbtn blue" id="saveProfileBtn">ذخیره پروفایل</button></div></div></div>
 <input id="restoreFile" type="file" accept="application/json" hidden>
 <div class="toast" id="toast"></div>
@@ -221,6 +232,96 @@ function backup(){rebuildArchive();const data={version:3,exportedAt:nowIso(),pro
 function restore(file){const r=new FileReader();r.onload=()=>{try{const d=JSON.parse(r.result);if(!Array.isArray(d.parcels))throw 0;let added=0;d.parcels.forEach(x=>{if(x.barcode&&!parcels.some(p=>p.barcode===x.barcode)){parcels.push(x);added++}});if(d.profile)profile={...profile,...d.profile};if(d.archiveByDate&&typeof d.archiveByDate==='object')archiveByDate={...archiveByDate,...d.archiveByDate};rebuildArchive();save();localStorage.setItem(PROFILE,JSON.stringify(profile));updateProfile();render();toast(`${added} مرسوله بازیابی شد؛ اطلاعات قبلی حفظ شد.`)}catch(e){toast('فایل پشتیبان معتبر نیست.')}};r.readAsText(file)}
 async function gallery(){const input=document.createElement('input');input.type='file';input.accept='image/*';input.onchange=async()=>{const file=input.files[0];if(!file)return;toast('در حال بررسی تصویر...');let found=[];try{if('BarcodeDetector' in window){const det=new BarcodeDetector();const bmp=await createImageBitmap(file);const codes=await det.detect(bmp);found=codes.map(x=>(x.rawValue||'').replace(/\D/g,''))}}catch(e){}try{if(!found.length&&window.Tesseract){const out=await Tesseract.recognize(file,'eng');found=(out.data.text.match(/\d{15,24}/g)||[])}}catch(e){}found=[...new Set(found.filter(x=>x.length>=15&&x.length<=24))].filter(x=>!parcels.some(p=>p.barcode===x));if(!found.length)return toast('بارکد معتبر جدیدی در تصویر پیدا نشد.');found.forEach(x=>parcels.push({id:crypto.randomUUID?crypto.randomUUID():String(Date.now()+Math.random()),barcode:x,name:'',address:'',createdAt:nowIso(),delivered:false}));save();render();toast(`${found.length} بارکد به فهرست اضافه شد.`)};input.click()}
 let scanStream=null, scanReader=null, scanControls=null, scanActive=false, scanLast='', scanTimer=null, scanDetector=null;
+
+let pendingPhotoCodes=[];
+function enhancePhotoCanvas(img, mode=0){
+  const maxW=1800, scale=Math.min(3,Math.max(1.6, maxW/img.naturalWidth));
+  const w=Math.max(1,Math.round(img.naturalWidth*scale)), h=Math.max(1,Math.round(img.naturalHeight*scale));
+  const c=document.createElement('canvas'); c.width=w; c.height=h;
+  const ctx=c.getContext('2d',{willReadFrequently:true});
+  ctx.imageSmoothingEnabled=true; ctx.imageSmoothingQuality='high';
+  ctx.drawImage(img,0,0,w,h);
+  const d=ctx.getImageData(0,0,w,h), a=d.data;
+  for(let i=0;i<a.length;i+=4){
+    const gray=0.299*a[i]+0.587*a[i+1]+0.114*a[i+2];
+    let v=gray;
+    if(mode===1) v=Math.max(0,Math.min(255,(gray-128)*1.8+128));
+    if(mode===2) v=gray>145?255:0;
+    if(mode===3) v=gray>105?255:0;
+    a[i]=a[i+1]=a[i+2]=v;
+  }
+  ctx.putImageData(d,0,0); return c;
+}
+async function decodeCanvas(canvas){
+  let values=[];
+  const dataUrl=canvas.toDataURL('image/png');
+  const image=new Image();
+  await new Promise((resolve,reject)=>{image.onload=resolve;image.onerror=reject;image.src=dataUrl});
+  if(window.ZXingBrowser?.BrowserMultiFormatReader){
+    try{
+      const reader=new ZXingBrowser.BrowserMultiFormatReader();
+      try{const r=await reader.decodeFromImageElement(image); if(r)values.push(String(r.getText?.()||r.text||''))}catch(e){}
+      try{reader.reset?.()}catch(e){}
+    }catch(e){}
+  }
+  if('BarcodeDetector' in window){
+    try{
+      const formats=['qr_code','code_128','code_39','code_93','codabar','ean_13','ean_8','upc_a','upc_e','itf','data_matrix','pdf417'];
+      const detector=new BarcodeDetector({formats});
+      const codes=await detector.detect(canvas);
+      values.push(...codes.map(x=>x.rawValue||''));
+    }catch(e){}
+  }
+  return values;
+}
+function normalizeDetected(values){
+  return [...new Set(values.map(v=>String(v||'').replace(/\s+/g,'').trim()).filter(v=>v && (/^\d{15,24}$/.test(v)||/^[A-Za-z0-9\-_/]{6,80}$/.test(v))))];
+}
+function showPendingPhotoCodes(codes){
+  pendingPhotoCodes=codes;
+  const box=$('#scanPhotoResult'), actions=$('#photoSaveActions');
+  if(!codes.length){box.innerHTML='<div class="photo-note">بارکد از تصویر تشخیص داده نشد. عکس را نزدیک‌تر، صاف‌تر و با نور بهتر بگیرید.</div>';actions.style.display='none';return}
+  box.innerHTML='<div class="photo-note"><b>کدهای تشخیص‌داده‌شده:</b></div>'+codes.map((c,i)=>`<div class="detected-code"><span>${esc(c)}</span><button type="button" data-save-photo-code="${i}">ذخیره</button></div>`).join('');
+  actions.style.display='flex';
+}
+function savePhotoCodes(){
+  let added=0;
+  pendingPhotoCodes.forEach(code=>{if(!parcels.some(p=>p.barcode===code)){parcels.unshift({id:crypto.randomUUID?crypto.randomUUID():String(Date.now()+Math.random()),barcode:code,name:'',address:'',createdAt:nowIso(),delivered:false});added++}});
+  save(); render();
+  toast(added?`${added} کد در فهرست ذخیره شد.`:'این کدها قبلاً ذخیره شده‌اند.');
+  pendingPhotoCodes=[]; $('#photoSaveActions').style.display='none';
+}
+async function scanBarcodeFromPhoto(file){
+  const status=$('#scanStatus'), box=$('#scanPhotoResult');
+  if(!file)return;
+  stopLiveScan(false); openModal('scanModal'); status.textContent='در حال افزایش وضوح و استخراج بارکد از عکس...'; box.innerHTML=''; pendingPhotoCodes=[]; $('#photoSaveActions').style.display='none';
+  const url=URL.createObjectURL(file), img=new Image();
+  img.onload=async()=>{
+    try{
+      box.innerHTML='<img src="'+url+'" alt="تصویر انتخاب‌شده برای استخراج بارکد"><div class="photo-note">تصویر بزرگ‌نمایی و واضح‌سازی شد؛ در حال تشخیص...</div>';
+      let values=[];
+      for(const mode of [0,1,2,3]){
+        const canvas=enhancePhotoCanvas(img,mode);
+        values.push(...await decodeCanvas(canvas));
+        if(mode===0){
+          const ocrCanvas=canvas;
+          if(window.Tesseract){try{const out=await Tesseract.recognize(ocrCanvas.toDataURL('image/png'),'eng',{logger:()=>{}}); const text=String(out?.data?.text||''); values.push(...(text.match(/\d{15,24}/g)||[]))}catch(e){}}
+        }
+      }
+      const codes=normalizeDetected(values);
+      showPendingPhotoCodes(codes);
+      status.textContent=codes.length?'✓ تشخیص انجام شد؛ برای ثبت، دکمه ذخیره را بزنید.':'تشخیص از تصویر انجام نشد.';
+    }catch(e){console.error(e);status.textContent='خطا در پردازش تصویر. لطفاً عکس واضح‌تری بگیرید.';showPendingPhotoCodes([])}
+    finally{URL.revokeObjectURL(url)}
+  };
+  img.onerror=()=>{status.textContent='تصویر قابل خواندن نیست.';URL.revokeObjectURL(url)};
+  img.src=url;
+}
+
+function chooseBarcodePhoto(){
+  $('#barcodePhotoInput').click();
+}
+
 
 async function startLiveScan(){
   const video=$('#scanVideo'), status=$('#scanStatus');
@@ -292,7 +393,7 @@ function stopLiveScan(close=true){
   if(close)closeModal('scanModal');
 }
 function saveProfile(){profile={office:$('#officeInput').value.trim(),city:$('#cityInput').value.trim(),manager:$('#managerInput').value.trim()};localStorage.setItem(PROFILE,JSON.stringify(profile));updateProfile();closeModal('profileModal');toast('پروفایل ذخیره شد.')}
-$('#addBtn').onclick=()=>{resetParcel();openModal('parcelModal')};$('#scanBtn').onclick=startLiveScan;$('#stopScanBtn').onclick=()=>stopLiveScan(true);$('#restartScanBtn').onclick=startLiveScan;$('#waitingBtn').onclick=()=>{filter='waiting';render();window.scrollTo({top:document.body.scrollHeight,behavior:'smooth'})};$('#archiveBtn').onclick=()=>{const groups=refreshArchive();filter='done';render();window.scrollTo({top:document.body.scrollHeight,behavior:'smooth'});toast(groups.length?`بایگانی به‌روزرسانی شد؛ ${groups.length} روز ثبت شده است.`:'هنوز مرسوله تحویل‌شده‌ای برای بایگانی وجود ندارد.')};$('#galleryBtn').onclick=gallery;$('#backupBtn').onclick=backup;$('#restoreBtn').onclick=()=>$('#restoreFile').click();$('#restoreFile').onchange=e=>e.target.files[0]&&restore(e.target.files[0]);$('#clearBtn').onclick=()=>{if(!parcels.length)return toast('فهرست خالی است.');if(confirm('همه مرسولات حذف شوند؟ این عملیات قابل بازگشت نیست.')){parcels=[];save();render();toast('فهرست پاک شد.')}};$('#saveParcelBtn').onclick=saveParcel;$('#confirmDelivery').onclick=confirmDelivery;$('#clearSignature').onclick=clearSig;$('#profileBtn').onclick=()=>{$('#officeInput').value=profile.office||'';$('#cityInput').value=profile.city||'';$('#managerInput').value=profile.manager||'';openModal('profileModal')};$('#saveProfileBtn').onclick=saveProfile;$('#search').oninput=render;
+$('#addBtn').onclick=()=>{resetParcel();openModal('parcelModal')};$('#scanBtn').onclick=startLiveScan;$('#photoScanBtn').onclick=chooseBarcodePhoto;$('#savePhotoCodesBtn').onclick=savePhotoCodes;$('#scanPhotoResult').addEventListener('click',e=>{const b=e.target.closest('[data-save-photo-code]');if(!b)return;const code=pendingPhotoCodes[Number(b.dataset.savePhotoCode)];if(code){pendingPhotoCodes=[code];savePhotoCodes()}});$('#barcodePhotoInput').onchange=e=>{const f=e.target.files?.[0];if(f)scanBarcodeFromPhoto(f);e.target.value=''};$('#stopScanBtn').onclick=()=>stopLiveScan(true);$('#restartScanBtn').onclick=startLiveScan;$('#waitingBtn').onclick=()=>{filter='waiting';render();window.scrollTo({top:document.body.scrollHeight,behavior:'smooth'})};$('#archiveBtn').onclick=()=>{const groups=refreshArchive();filter='done';render();window.scrollTo({top:document.body.scrollHeight,behavior:'smooth'});toast(groups.length?`بایگانی به‌روزرسانی شد؛ ${groups.length} روز ثبت شده است.`:'هنوز مرسوله تحویل‌شده‌ای برای بایگانی وجود ندارد.')};$('#galleryBtn').onclick=gallery;$('#backupBtn').onclick=backup;$('#restoreBtn').onclick=()=>$('#restoreFile').click();$('#restoreFile').onchange=e=>e.target.files[0]&&restore(e.target.files[0]);$('#clearBtn').onclick=()=>{if(!parcels.length)return toast('فهرست خالی است.');if(confirm('همه مرسولات حذف شوند؟ این عملیات قابل بازگشت نیست.')){parcels=[];save();render();toast('فهرست پاک شد.')}};$('#saveParcelBtn').onclick=saveParcel;$('#confirmDelivery').onclick=confirmDelivery;$('#clearSignature').onclick=clearSig;$('#profileBtn').onclick=()=>{$('#officeInput').value=profile.office||'';$('#cityInput').value=profile.city||'';$('#managerInput').value=profile.manager||'';openModal('profileModal')};$('#saveProfileBtn').onclick=saveProfile;$('#search').oninput=render;
 $$('[data-close]').forEach(b=>b.onclick=()=>{if(b.dataset.close==='scanModal')stopLiveScan(true);else closeModal(b.dataset.close)});$$('.filter,.stat').forEach(b=>b.onclick=()=>{filter=b.dataset.filter;render()});$('#list').addEventListener('click',e=>{
   const item=e.target.closest('[data-archive-item]');if(item&&!e.target.closest('button')){item.classList.toggle('open');return}
   const day=e.target.closest('[data-archive-date]');
