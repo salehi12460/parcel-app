@@ -7,6 +7,8 @@
 <title>سامانه مدیریت مرسولات</title>
 <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@zxing/browser@0.1.5/umd/index.min.js"></script>
+<script src="https://unpkg.com/@zxing/browser@0.1.5/umd/index.min.js"></script>
+<script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 <style>
 :root{--ink:#173b67;--muted:#708097;--blue:#1769aa;--blue2:#eaf3ff;--green:#079b68;--green2:#e8f8f1;--amber:#b77908;--amber2:#fff7df;--red:#c24141;--line:#e4eaf2;--bg:#f5f7fb;--card:#fff;--shadow:0 5px 20px rgba(31,57,89,.07);--r:22px}
 *{box-sizing:border-box} html,body{margin:0;padding:0;background:var(--bg);color:var(--ink);font-family:Tahoma,"Segoe UI",Arial,sans-serif} body{min-height:100vh} button,input,select{font:inherit} button{cursor:pointer} .app{width:min(100%,760px);margin:auto;padding:12px 14px 30px} 
@@ -159,7 +161,7 @@ body{font-size:16px;-webkit-text-size-adjust:100%;text-rendering:optimizeLegibil
 
 <div class="modal" id="deliveryModal"><div class="sheet"><div class="sheet-head"><h3>ثبت نهایی تحویل</h3><button class="close" data-close="deliveryModal">×</button></div><p class="hint">مشخصات تحویل‌گیرنده را وارد کنید. تاریخ و ساعت هنگام ثبت، خودکار ذخیره می‌شود.</p><div class="formgrid"><div class="field full"><label>نام و نام خانوادگی تحویل‌گیرنده *</label><input id="receiverInput" placeholder="مثلاً صالح کوتاه"></div><div class="field"><label>شماره تماس *</label><input id="phoneInput" inputmode="tel" placeholder="مثلاً 0912xxxxxxxx"></div><div class="field"><label>تصویر تحویل (اختیاری)</label><input class="file" id="photoInput" type="file" accept="image/*" capture="environment"></div><div class="field full"><label>امضا *</label><div class="signature-wrap"><canvas id="signatureCanvas" width="600" height="250"></canvas></div><button class="mainbtn gray" id="clearSignature" style="margin-top:7px;height:38px">پاک کردن امضا</button></div></div><div class="sheet-actions"><button class="mainbtn gray" data-close="deliveryModal">انصراف</button><button class="mainbtn green" id="confirmDelivery">ثبت تحویل</button></div></div></div>
 
-<div class="modal" id="scanModal"><div class="sheet"><div class="sheet-head"><h3>اسکن زنده QR و بارکد</h3><button class="close" data-close="scanModal">×</button></div><div class="scan-box"><video id="scanVideo" autoplay playsinline muted></video><div class="scan-guide"></div></div><div class="scan-status" id="scanStatus">دوربین را مقابل QR یا بارکد قرار دهید؛ پس از تشخیص، ذخیره خودکار انجام می‌شود.</div><div class="sheet-actions">
+<div class="modal" id="scanModal"><div class="sheet"><div class="sheet-head"><h3>اسکن زنده QR و بارکد</h3><button class="close" data-close="scanModal">×</button></div><div class="scan-box"><video id="scanVideo" autoplay playsinline muted></video><div id="qrReader" style="position:absolute;inset:0;overflow:hidden;opacity:0;pointer-events:none"></div><div id="qrReaderPhoto" style="display:none"></div><div class="scan-guide"></div></div><div class="scan-status" id="scanStatus">دوربین را مقابل QR یا بارکد قرار دهید؛ پس از تشخیص، ذخیره خودکار انجام می‌شود.</div><div class="sheet-actions">
 <button class="mainbtn gray scan-stop" id="stopScanBtn">توقف دوربین</button>
 <button class="mainbtn blue" id="restartScanBtn">شروع اسکن زنده</button>
 </div>
@@ -230,7 +232,7 @@ function confirmDelivery(){const p=parcels.find(x=>x.id===deliveryId);const rece
 function finishDelivery(){refreshArchive();save();closeModal('deliveryModal');filter='done';render();toast('تحویل با تاریخ و ساعت خودکار ثبت شد و در بایگانی روز قرار گرفت.')}
 function backup(){rebuildArchive();const data={version:3,exportedAt:nowIso(),profile,parcels,archiveByDate};const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='پشتیبان-مرسولات-'+new Date().toISOString().slice(0,10)+'.json';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),500);toast('فایل پشتیبان آماده شد.')}
 function restore(file){const r=new FileReader();r.onload=()=>{try{const d=JSON.parse(r.result);if(!Array.isArray(d.parcels))throw 0;let added=0;d.parcels.forEach(x=>{if(x.barcode&&!parcels.some(p=>p.barcode===x.barcode)){parcels.push(x);added++}});if(d.profile)profile={...profile,...d.profile};if(d.archiveByDate&&typeof d.archiveByDate==='object')archiveByDate={...archiveByDate,...d.archiveByDate};rebuildArchive();save();localStorage.setItem(PROFILE,JSON.stringify(profile));updateProfile();render();toast(`${added} مرسوله بازیابی شد؛ اطلاعات قبلی حفظ شد.`)}catch(e){toast('فایل پشتیبان معتبر نیست.')}};r.readAsText(file)}
-async function gallery(){const input=document.createElement('input');input.type='file';input.accept='image/*';input.onchange=async()=>{const file=input.files[0];if(!file)return;toast('در حال بررسی تصویر...');let found=[];try{if('BarcodeDetector' in window){const det=new BarcodeDetector();const bmp=await createImageBitmap(file);const codes=await det.detect(bmp);found=codes.map(x=>(x.rawValue||'').replace(/\D/g,''))}}catch(e){}try{if(!found.length&&window.Tesseract){const out=await Tesseract.recognize(file,'eng');found=(out.data.text.match(/\d{15,24}/g)||[])}}catch(e){}found=[...new Set(found.filter(x=>x.length>=15&&x.length<=24))].filter(x=>!parcels.some(p=>p.barcode===x));if(!found.length)return toast('بارکد معتبر جدیدی در تصویر پیدا نشد.');found.forEach(x=>parcels.push({id:crypto.randomUUID?crypto.randomUUID():String(Date.now()+Math.random()),barcode:x,name:'',address:'',createdAt:nowIso(),delivered:false}));save();render();toast(`${found.length} بارکد به فهرست اضافه شد.`)};input.click()}
+async function gallery(){const input=document.createElement('input');input.type='file';input.accept='image/*';input.onchange=async()=>{const file=input.files[0];if(!file)return;toast('در حال بررسی تصویر...');let found=[];try{if('BarcodeDetector' in window){const det=new BarcodeDetector();const bmp=await createImageBitmap(file);const codes=await det.detect(bmp);found=codes.map(x=>(x.rawValue||'').replace(/\D/g,''))}}catch(e){}try{if(!found.length&&window.Tesseract){const out=await Tesseract.recognize(file,'eng');found=(normalizeDigits(out.data.text).match(/\d{15,24}/g)||[])}}catch(e){}found=[...new Set(found.filter(x=>x.length>=15&&x.length<=24))].filter(x=>!parcels.some(p=>p.barcode===x));if(!found.length)return toast('بارکد معتبر جدیدی در تصویر پیدا نشد.');found.forEach(x=>parcels.push({id:crypto.randomUUID?crypto.randomUUID():String(Date.now()+Math.random()),barcode:x,name:'',address:'',createdAt:nowIso(),delivered:false}));save();render();toast(`${found.length} بارکد به فهرست اضافه شد.`)};input.click()}
 let scanStream=null, scanReader=null, scanControls=null, scanActive=false, scanLast='', scanTimer=null, scanDetector=null;
 
 let pendingPhotoCodes=[];
@@ -252,14 +254,17 @@ function enhancePhotoCanvas(img, mode=0){
   }
   ctx.putImageData(d,0,0); return c;
 }
+function getZXing(){return window.ZXingBrowser||window.ZXing||null}
+function normalizeDigits(s){return String(s||'').replace(/[۰-۹]/g,ch=>String('۰۱۲۳۴۵۶۷۸۹'.indexOf(ch))).replace(/[٠-٩]/g,ch=>String('٠١٢٣٤٥٦٧٨٩'.indexOf(ch)))}
 async function decodeCanvas(canvas){
   let values=[];
   const dataUrl=canvas.toDataURL('image/png');
   const image=new Image();
   await new Promise((resolve,reject)=>{image.onload=resolve;image.onerror=reject;image.src=dataUrl});
-  if(window.ZXingBrowser?.BrowserMultiFormatReader){
+  const ZX=getZXing();
+  if(ZX?.BrowserMultiFormatReader){
     try{
-      const reader=new ZXingBrowser.BrowserMultiFormatReader();
+      const reader=new ZX.BrowserMultiFormatReader();
       try{const r=await reader.decodeFromImageElement(image); if(r)values.push(String(r.getText?.()||r.text||''))}catch(e){}
       try{reader.reset?.()}catch(e){}
     }catch(e){}
@@ -275,7 +280,7 @@ async function decodeCanvas(canvas){
   return values;
 }
 function normalizeDetected(values){
-  return [...new Set(values.map(v=>String(v||'').replace(/\s+/g,'').trim()).filter(v=>v && (/^\d{15,24}$/.test(v)||/^[A-Za-z0-9\-_/]{6,80}$/.test(v))))];
+  return [...new Set(values.map(v=>normalizeDigits(v).replace(/[\s،,؛;|]/g,'').trim()).filter(v=>v && (/^\d{15,24}$/.test(v)||/^[A-Za-z0-9\-_/]{6,80}$/.test(v))))];
 }
 function showPendingPhotoCodes(codes){
   pendingPhotoCodes=codes;
@@ -294,28 +299,37 @@ function savePhotoCodes(){
 async function scanBarcodeFromPhoto(file){
   const status=$('#scanStatus'), box=$('#scanPhotoResult');
   if(!file)return;
-  stopLiveScan(false); openModal('scanModal'); status.textContent='در حال افزایش وضوح و استخراج بارکد از عکس...'; box.innerHTML=''; pendingPhotoCodes=[]; $('#photoSaveActions').style.display='none';
-  const url=URL.createObjectURL(file), img=new Image();
-  img.onload=async()=>{
-    try{
-      box.innerHTML='<img src="'+url+'" alt="تصویر انتخاب‌شده برای استخراج بارکد"><div class="photo-note">تصویر بزرگ‌نمایی و واضح‌سازی شد؛ در حال تشخیص...</div>';
-      let values=[];
+  stopLiveScan(false); openModal('scanModal');
+  status.textContent='در حال استخراج QR و بارکد از تصویر...'; box.innerHTML=''; pendingPhotoCodes=[]; $('#photoSaveActions').style.display='none';
+  const url=URL.createObjectURL(file);
+  box.innerHTML='<img src="'+url+'" alt="تصویر انتخاب‌شده برای استخراج بارکد"><div class="photo-note">تصویر دریافت شد؛ در حال تشخیص QR و بارکد...</div>';
+  try{
+    if(!window.Html5Qrcode)throw new Error('library');
+    const reader=new Html5Qrcode('qrReaderPhoto',{verbose:false});
+    const formats=window.Html5QrcodeSupportedFormats?[
+      Html5QrcodeSupportedFormats.QR_CODE,Html5QrcodeSupportedFormats.CODE_128,
+      Html5QrcodeSupportedFormats.CODE_39,Html5QrcodeSupportedFormats.CODE_93,
+      Html5QrcodeSupportedFormats.EAN_13,Html5QrcodeSupportedFormats.EAN_8,
+      Html5QrcodeSupportedFormats.UPC_A,Html5QrcodeSupportedFormats.UPC_E,
+      Html5QrcodeSupportedFormats.ITF,Html5QrcodeSupportedFormats.CODABAR
+    ]:undefined;
+    const results=[];
+    await reader.scanFile(file,true).then(text=>results.push(String(text||''))).catch(()=>{});
+    try{await reader.clear()}catch(e){}
+    let codes=normalizeDetected(results);
+    if(!codes.length && window.Tesseract){
+      status.textContent='بارکد مستقیم خوانده نشد؛ در حال استخراج عددها از تصویر...';
+      const img=new Image(); img.src=url; await new Promise(r=>{img.onload=r;img.onerror=r});
       for(const mode of [0,1,2,3]){
         const canvas=enhancePhotoCanvas(img,mode);
-        values.push(...await decodeCanvas(canvas));
-        if(mode===0){
-          const ocrCanvas=canvas;
-          if(window.Tesseract){try{const out=await Tesseract.recognize(ocrCanvas.toDataURL('image/png'),'eng',{logger:()=>{}}); const text=String(out?.data?.text||''); values.push(...(text.match(/\d{15,24}/g)||[]))}catch(e){}}
-        }
+        try{const out=await Tesseract.recognize(canvas.toDataURL('image/png'),'eng',{logger:()=>{}});const text=normalizeDigits(out?.data?.text||'');codes.push(...(text.match(/\d{10,24}/g)||[]))}catch(e){}
       }
-      const codes=normalizeDetected(values);
-      showPendingPhotoCodes(codes);
-      status.textContent=codes.length?'✓ تشخیص انجام شد؛ برای ثبت، دکمه ذخیره را بزنید.':'تشخیص از تصویر انجام نشد.';
-    }catch(e){console.error(e);status.textContent='خطا در پردازش تصویر. لطفاً عکس واضح‌تری بگیرید.';showPendingPhotoCodes([])}
-    finally{URL.revokeObjectURL(url)}
-  };
-  img.onerror=()=>{status.textContent='تصویر قابل خواندن نیست.';URL.revokeObjectURL(url)};
-  img.src=url;
+      codes=normalizeDetected(codes);
+    }
+    showPendingPhotoCodes(codes);
+    status.textContent=codes.length?'✓ کد تشخیص داده شد؛ برای ثبت، دکمه ذخیره را بزنید.':'از این تصویر کد خوانا تشخیص داده نشد. بارکد را از نزدیک و بدون انعکاس عکس بگیرید.';
+  }catch(e){console.error(e);showPendingPhotoCodes([]);status.textContent='کتابخانه تشخیص تصویر بارگذاری نشده است؛ اینترنت را روشن کرده و دوباره امتحان کنید.'}
+  finally{setTimeout(()=>URL.revokeObjectURL(url),1000)}
 }
 
 function chooseBarcodePhoto(){
@@ -325,43 +339,34 @@ function chooseBarcodePhoto(){
 
 async function startLiveScan(){
   const video=$('#scanVideo'), status=$('#scanStatus');
-  stopLiveScan(false);
-  openModal('scanModal');
-  status.textContent='در حال اتصال به دوربین پشت گوشی...';
+  stopLiveScan(false); openModal('scanModal');
+  status.textContent='در حال آماده‌سازی اسکنر...';
   if(!window.isSecureContext){status.textContent='برای استفاده از دوربین، سایت باید با HTTPS باز شود.';return}
-  if(!navigator.mediaDevices?.getUserMedia){status.textContent='این مرورگر از دوربین پشتیبانی نمی‌کند.';return}
+  if(!window.Html5Qrcode){status.textContent='کتابخانه اسکن بارگذاری نشده است؛ اینترنت را روشن کنید و دوباره تلاش کنید.';return}
   scanActive=true;
   try{
-    // فقط یک بار دوربین را توسط ZXing باز می‌کنیم؛ بازکردن هم‌زمان getUserMedia
-    // و ZXing باعث سیاه‌شدن تصویر یا توقف تشخیص در بعضی گوشی‌ها می‌شود.
-    if(window.ZXingBrowser?.BrowserMultiFormatReader){
-      scanReader=new ZXingBrowser.BrowserMultiFormatReader();
-      const devices=await ZXingBrowser.BrowserCodeReader.listVideoInputDevices();
-      const rear=devices.find(d=>/back|rear|environment|پشت|0, facing back/i.test(d.label));
-      const deviceId=rear?.deviceId || devices[devices.length-1]?.deviceId;
-      const constraints=deviceId
-        ? {video:{deviceId:{exact:deviceId},width:{ideal:1920},height:{ideal:1080}},audio:false}
-        : {video:{facingMode:{ideal:'environment'},width:{ideal:1920},height:{ideal:1080}},audio:false};
-      scanControls=await scanReader.decodeFromConstraints(constraints,video,(result,error)=>{
-        if(!scanActive || !result)return;
-        const value=String(typeof result.getText==='function'?result.getText():result.text||'').trim();
-        if(!value)return;
-        const key=value.replace(/\s+/g,'');
-        if(key===scanLast)return;
-        scanLast=key;
-        autoSaveScanned(value);
-        status.textContent='✓ کد تشخیص داده شد و در فهرست ذخیره شد: '+value;
-        setTimeout(()=>{if(scanActive)status.textContent='برای ثبت کد بعدی، بارکد را داخل کادر قرار دهید...'},1800);
-      });
-      status.textContent='دوربین فعال است؛ بارکد را داخل کادر قرار دهید...';
-      return;
-    }
-    status.textContent='کتابخانه اسکن بارگذاری نشده است. صفحه را تازه‌سازی کنید.';
-  }catch(error){
-    console.error(error);
-    scanActive=false;
-    status.textContent='اسکنر فعال نشد. مجوز دوربین را بررسی کنید و صفحه را با Chrome باز کنید.';
-  }
+    const formats=window.Html5QrcodeSupportedFormats?[
+      Html5QrcodeSupportedFormats.QR_CODE,Html5QrcodeSupportedFormats.CODE_128,
+      Html5QrcodeSupportedFormats.CODE_39,Html5QrcodeSupportedFormats.CODE_93,
+      Html5QrcodeSupportedFormats.EAN_13,Html5QrcodeSupportedFormats.EAN_8,
+      Html5QrcodeSupportedFormats.UPC_A,Html5QrcodeSupportedFormats.UPC_E,
+      Html5QrcodeSupportedFormats.ITF,Html5QrcodeSupportedFormats.CODABAR
+    ]:undefined;
+    scanReader=new Html5Qrcode('qrReader', {verbose:false});
+    const cameras=await Html5Qrcode.getCameras();
+    const rear=cameras.find(c=>/back|rear|environment|پشت/i.test(c.label));
+    const cameraId=rear?.id||cameras[cameras.length-1]?.id;
+    if(!cameraId)throw new Error('no-camera');
+    await scanReader.start(cameraId,{fps:10,qrbox:{width:Math.min(280,window.innerWidth-90),height:180},formatsToSupport:formats},(decodedText)=>{
+      if(!scanActive)return;
+      const value=String(decodedText||'').trim(); if(!value)return;
+      const key=value.replace(/\s+/g,''); if(key===scanLast)return;
+      scanLast=key; autoSaveScanned(value);
+      status.textContent='✓ کد تشخیص داده شد و در فهرست ذخیره شد: '+value;
+      setTimeout(()=>{if(scanActive)status.textContent='بارکد بعدی را داخل کادر قرار دهید...'},1800);
+    },()=>{});
+    status.textContent='دوربین فعال است؛ QR یا بارکد را داخل کادر قرار دهید...';
+  }catch(error){console.error(error);scanActive=false;status.textContent='اسکنر فعال نشد. مجوز دوربین را بررسی کنید و صفحه را با Chrome باز کنید.';}
 }
 
 function autoSaveScanned(value){
@@ -383,10 +388,9 @@ function stopLiveScan(close=true){
   scanLast='';
   if(scanTimer){clearTimeout(scanTimer);scanTimer=null}
   scanDetector=null;
-  try{if(scanControls?.stop)scanControls.stop()}catch(e){}
-  scanControls=null;
-  try{if(scanReader?.reset)scanReader.reset()}catch(e){}
-  scanReader=null;
+  try{if(scanReader?.stop)scanReader.stop().catch(()=>{})}catch(e){}
+  try{if(scanReader?.clear)scanReader.clear()}catch(e){}
+  scanControls=null; scanReader=null;
   if(scanStream){scanStream.getTracks().forEach(t=>t.stop());scanStream=null}
   const v=$('#scanVideo');
   if(v){try{v.pause()}catch(e){};v.srcObject=null;v.removeAttribute('src')}
