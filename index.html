@@ -221,89 +221,139 @@ function backup(){rebuildArchive();const data={version:3,exportedAt:nowIso(),pro
 function restore(file){const r=new FileReader();r.onload=()=>{try{const d=JSON.parse(r.result);if(!Array.isArray(d.parcels))throw 0;let added=0;d.parcels.forEach(x=>{if(x.barcode&&!parcels.some(p=>p.barcode===x.barcode)){parcels.push(x);added++}});if(d.profile)profile={...profile,...d.profile};if(d.archiveByDate&&typeof d.archiveByDate==='object')archiveByDate={...archiveByDate,...d.archiveByDate};rebuildArchive();save();localStorage.setItem(PROFILE,JSON.stringify(profile));updateProfile();render();toast(`${added} مرسوله بازیابی شد؛ اطلاعات قبلی حفظ شد.`)}catch(e){toast('فایل پشتیبان معتبر نیست.')}};r.readAsText(file)}
 async function gallery(){const input=document.createElement('input');input.type='file';input.accept='image/*';input.onchange=async()=>{const file=input.files[0];if(!file)return;toast('در حال بررسی تصویر...');let found=[];try{if('BarcodeDetector' in window){const det=new BarcodeDetector();const bmp=await createImageBitmap(file);const codes=await det.detect(bmp);found=codes.map(x=>(x.rawValue||'').replace(/\D/g,''))}}catch(e){}try{if(!found.length&&window.Tesseract){const out=await Tesseract.recognize(file,'eng');found=(out.data.text.match(/\d{15,24}/g)||[])}}catch(e){}found=[...new Set(found.filter(x=>x.length>=15&&x.length<=24))].filter(x=>!parcels.some(p=>p.barcode===x));if(!found.length)return toast('بارکد معتبر جدیدی در تصویر پیدا نشد.');found.forEach(x=>parcels.push({id:crypto.randomUUID?crypto.randomUUID():String(Date.now()+Math.random()),barcode:x,name:'',address:'',createdAt:nowIso(),delivered:false}));save();render();toast(`${found.length} بارکد به فهرست اضافه شد.`)};input.click()}
 let scanStream=null, scanReader=null, scanActive=false, scanLast='', scanTimer=null, scanDetector=null;
+
 async function startLiveScan(){
-  const video=$('#scanVideo'); const status=$('#scanStatus');
-  stopLiveScan(false); openModal('scanModal');
-  status.textContent='در حال درخواست مجوز دوربین...';
-  if(!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){
-    status.textContent='این مرورگر از دوربین پشتیبانی نمی‌کند. لینک را با Chrome و HTTPS باز کنید.';
+  const video=$('#scanVideo'), status=$('#scanStatus');
+  stopLiveScan(false);
+  openModal('scanModal');
+  status.textContent='در حال آماده‌سازی دوربین پشت گوشی...';
+
+  if(!window.isSecureContext){
+    status.textContent='برای استفاده از دوربین، سایت باید با HTTPS باز شود.';
     return;
   }
+  if(!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){
+    status.textContent='این مرورگر از دوربین پشتیبانی نمی‌کند. لینک را با Chrome یا Samsung Internet باز کنید.';
+    return;
+  }
+
   try{
-    let stream;
+    // ابتدا دوربین را خودمان باز می‌کنیم تا تصویر زنده حتماً نمایش داده شود.
     try{
-      stream=await navigator.mediaDevices.getUserMedia({
+      scanStream=await navigator.mediaDevices.getUserMedia({
         audio:false,
-        video:{facingMode:{exact:'environment'},width:{ideal:1280},height:{ideal:720}}
+        video:{facingMode:{ideal:'environment'},width:{ideal:1920},height:{ideal:1080}}
       });
-    }catch(e){
-      stream=await navigator.mediaDevices.getUserMedia({
-        audio:false,
-        video:{facingMode:'environment',width:{ideal:1280},height:{ideal:720}}
-      });
+    }catch(firstError){
+      scanStream=await navigator.mediaDevices.getUserMedia({audio:false,video:true});
     }
-    scanStream=stream;
-    video.srcObject=stream;
+
+    video.srcObject=scanStream;
+    video.setAttribute('autoplay','');
+    video.setAttribute('playsinline','');
     video.muted=true;
-    video.autoplay=true;
-    video.playsInline=true;
     await video.play();
     scanActive=true;
-    status.textContent='دوربین فعال است؛ QR یا بارکد را داخل کادر قرار دهید.';
+    status.textContent='دوربین فعال است؛ بارکد یا QR را داخل کادر قرار دهید...';
 
-    // روش اصلی: BarcodeDetector داخلی مرورگرهای جدید اندروید
+    // روش اصلی تشخیص: ZXing با decodeFromVideoDevice؛ این متد در نسخه موبایل پایدارتر است.
+    if(window.ZXingBrowser && window.ZXingBrowser.BrowserMultiFormatReader){
+      scanReader=new ZXingBrowser.BrowserMultiFormatReader();
+      let started=false;
+      const onResult=(result,error)=>{
+        if(!scanActive)return;
+        if(result){
+          const value=(typeof result.getText==='function'?result.getText():result.text||'').trim();
+          if(value){
+            const key=value.replace(/\s+/g,'');
+            if(key!==scanLast){
+              scanLast=key;
+              autoSaveScanned(value);
+              status.textContent='کد تشخیص داده شد و در فهرست ذخیره شد.';
+              setTimeout(()=>{if(scanActive)status.textContent='برای ثبت کد بعدی، بارکد را داخل کادر قرار دهید...'},1600);
+            }
+          }
+        }
+      };
+
+      // در صورت وجود دستگاه، decodeFromVideoDevice را با دوربین پشت اجرا می‌کنیم.
+      try{
+        const devices=await ZXingBrowser.BrowserCodeReader.listVideoInputDevices();
+        const rear=devices.find(d=>/back|rear|environment|پشت/i.test(d.label));
+        const deviceId=rear?rear.deviceId:(devices[devices.length-1]?.deviceId||undefined);
+        if(deviceId!==undefined){
+          scanReader.decodeFromVideoDevice(deviceId,video,onResult);
+          started=true;
+        }
+      }catch(e){}
+
+      // اگر انتخاب دستگاه موفق نشد، از محدودیت دوربین پشت استفاده می‌کنیم.
+      if(!started){
+        try{
+          scanReader.decodeFromConstraints({video:{facingMode:{ideal:'environment'}},audio:false},video,onResult);
+          started=true;
+        }catch(e){}
+      }
+      if(started)return;
+    }
+
+    // پشتیبان برای مرورگرهایی که BarcodeDetector داخلی دارند.
     if('BarcodeDetector' in window){
       try{
-        const formats=await BarcodeDetector.getSupportedFormats();
+        const all=await BarcodeDetector.getSupportedFormats();
         const wanted=['qr_code','code_128','code_39','code_93','ean_13','ean_8','upc_a','upc_e','itf','codabar','data_matrix','pdf417','aztec'];
-        const supported=wanted.filter(x=>formats.includes(x));
-        scanDetector=new BarcodeDetector({formats:supported.length?supported:formats});
-        const detectFrame=async()=>{
+        const formats=wanted.filter(x=>all.includes(x));
+        scanDetector=new BarcodeDetector({formats:formats.length?formats:all});
+        const detect=async()=>{
           if(!scanActive)return;
           try{
             if(video.readyState>=2){
               const results=await scanDetector.detect(video);
-              if(results&&results.length){
-                const value=(results[0].rawValue||'').trim();
-                if(value&&value!==scanLast){scanLast=value;autoSaveScanned(value);}
-              }
+              const item=results&&results[0];
+              const value=item&&String(item.rawValue||'').trim();
+              if(value&&value!==scanLast){scanLast=value;autoSaveScanned(value);status.textContent='کد تشخیص داده شد و در فهرست ذخیره شد.';}
             }
           }catch(e){}
-          scanTimer=setTimeout(detectFrame,250);
+          scanTimer=setTimeout(detect,250);
         };
-        detectFrame();
+        detect();
         return;
-      }catch(e){ scanDetector=null; }
+      }catch(e){}
     }
 
-    // روش پشتیبان: کتابخانه ZXing، بدون متوقف‌کردن تصویر دوربین در صورت خطا
-    if(window.ZXingBrowser && window.ZXingBrowser.BrowserMultiFormatReader){
-      scanReader=new ZXingBrowser.BrowserMultiFormatReader();
-      try{
-        scanReader.decodeFromVideoElement(video,(result,err)=>{
-          if(!scanActive||!result)return;
-          const value=(result.getText?result.getText():result.text||'').trim();
-          if(value&&value!==scanLast){scanLast=value;autoSaveScanned(value);}
-        });
-      }catch(e){
-        status.textContent='دوربین روشن است، اما تشخیص خودکار در این مرورگر پشتیبانی نمی‌شود. Chrome را به‌روز کنید.';
-      }
-    }else{
-      status.textContent='دوربین روشن است؛ برای تشخیص QR، Chrome را به‌روز کنید یا از گزینه بارکد از گالری استفاده کنید.';
-    }
-  }catch(e){
+    status.textContent='تصویر دوربین فعال است، اما تشخیص خودکار در این مرورگر در دسترس نیست. Chrome را به‌روز کنید.';
+  }catch(error){
     stopLiveScan(false);
-    status.textContent='دوربین باز نشد. از تنظیمات سایت، مجوز دوربین را روی «اجازه دادن» بگذارید و دوباره تلاش کنید.';
+    status.textContent='دسترسی به دوربین ممکن نشد. مجوز دوربین این سایت را روی «اجازه دادن» قرار دهید.';
   }
 }
+
 function autoSaveScanned(value){
   const barcode=String(value).trim();
   if(!barcode)return;
-  if(parcels.some(p=>p.barcode===barcode)){toast('این کد قبلاً در فهرست ثبت شده است.');return;}
+  if(parcels.some(p=>p.barcode===barcode)){
+    toast('این کد قبلاً در فهرست ثبت شده است.');
+    return;
+  }
   parcels.unshift({id:crypto.randomUUID?crypto.randomUUID():String(Date.now()+Math.random()),barcode,name:'',address:'',createdAt:nowIso(),delivered:false});
-  save(); filter='all'; render(); toast('QR / بارکد با موفقیت تشخیص داده شد و خودکار ذخیره شد.');
+  save();
+  filter='all';
+  render();
+  toast('QR / بارکد تشخیص داده شد و خودکار ذخیره شد.');
 }
-function stopLiveScan(close=true){scanActive=false;scanLast='';if(scanTimer){clearTimeout(scanTimer);scanTimer=null}scanDetector=null;try{if(scanReader&&scanReader.reset)scanReader.reset()}catch(e){}scanReader=null;if(scanStream){scanStream.getTracks().forEach(t=>t.stop());scanStream=null}const v=$('#scanVideo');if(v){v.pause();v.srcObject=null}if(close)closeModal('scanModal')}
+
+function stopLiveScan(close=true){
+  scanActive=false;
+  scanLast='';
+  if(scanTimer){clearTimeout(scanTimer);scanTimer=null}
+  scanDetector=null;
+  try{if(scanReader&&scanReader.reset)scanReader.reset()}catch(e){}
+  scanReader=null;
+  if(scanStream){scanStream.getTracks().forEach(t=>t.stop());scanStream=null}
+  const v=$('#scanVideo');
+  if(v){try{v.pause()}catch(e){};v.srcObject=null}
+  if(close)closeModal('scanModal');
+}
 function saveProfile(){profile={office:$('#officeInput').value.trim(),city:$('#cityInput').value.trim(),manager:$('#managerInput').value.trim()};localStorage.setItem(PROFILE,JSON.stringify(profile));updateProfile();closeModal('profileModal');toast('پروفایل ذخیره شد.')}
 $('#addBtn').onclick=()=>{resetParcel();openModal('parcelModal')};$('#scanBtn').onclick=startLiveScan;$('#stopScanBtn').onclick=()=>stopLiveScan(true);$('#restartScanBtn').onclick=startLiveScan;$('#waitingBtn').onclick=()=>{filter='waiting';render();window.scrollTo({top:document.body.scrollHeight,behavior:'smooth'})};$('#archiveBtn').onclick=()=>{const groups=refreshArchive();filter='done';render();window.scrollTo({top:document.body.scrollHeight,behavior:'smooth'});toast(groups.length?`بایگانی به‌روزرسانی شد؛ ${groups.length} روز ثبت شده است.`:'هنوز مرسوله تحویل‌شده‌ای برای بایگانی وجود ندارد.')};$('#galleryBtn').onclick=gallery;$('#backupBtn').onclick=backup;$('#restoreBtn').onclick=()=>$('#restoreFile').click();$('#restoreFile').onchange=e=>e.target.files[0]&&restore(e.target.files[0]);$('#clearBtn').onclick=()=>{if(!parcels.length)return toast('فهرست خالی است.');if(confirm('همه مرسولات حذف شوند؟ این عملیات قابل بازگشت نیست.')){parcels=[];save();render();toast('فهرست پاک شد.')}};$('#saveParcelBtn').onclick=saveParcel;$('#confirmDelivery').onclick=confirmDelivery;$('#clearSignature').onclick=clearSig;$('#profileBtn').onclick=()=>{$('#officeInput').value=profile.office||'';$('#cityInput').value=profile.city||'';$('#managerInput').value=profile.manager||'';openModal('profileModal')};$('#saveProfileBtn').onclick=saveProfile;$('#search').oninput=render;
 $$('[data-close]').forEach(b=>b.onclick=()=>{if(b.dataset.close==='scanModal')stopLiveScan(true);else closeModal(b.dataset.close)});$$('.filter,.stat').forEach(b=>b.onclick=()=>{filter=b.dataset.filter;render()});$('#list').addEventListener('click',e=>{
