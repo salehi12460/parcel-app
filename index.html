@@ -50,6 +50,32 @@
 .archive-day.open{background:#dcecff}.archive-items{display:none}.archive-items.open{display:block}.archive-day .arrow{display:inline-block;transition:transform .2s}.archive-day.open .arrow{transform:rotate(180deg)}
 
 .archive-row{border:1px solid #dbe5ef;border-radius:11px;background:#fff;margin:8px 0;overflow:hidden}.archive-summary{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:12px;cursor:pointer}.archive-summary>div{min-width:0;display:flex;flex-direction:column;gap:5px}.archive-barcode{font-weight:800;direction:ltr;text-align:right;font-size:14px;color:#173b67;word-break:break-all}.archive-name{font-size:13px;color:#465b70}.archive-more{font-size:11px;color:#1769aa;white-space:nowrap}.archive-detail{display:none;padding:0 12px 12px;border-top:1px dashed #d5e0eb}.archive-row.open .archive-detail{display:block}.archive-row.open .archive-more{color:#b45309}.archive-row.open .archive-more::first-letter{color:#b45309}
+
+/* Larger signature area for small phones */
+.signature-wrap{
+  min-height:220px;
+  border-radius:16px;
+}
+#signatureCanvas{
+  width:100%;
+  height:220px;
+  min-height:220px;
+  display:block;
+}
+#clearSignature{
+  width:100%;
+  min-height:44px !important;
+  height:44px !important;
+  font-size:13px;
+}
+@media(max-width:390px){
+  .signature-wrap{min-height:240px}
+  #signatureCanvas{
+    height:240px;
+    min-height:240px;
+  }
+}
+
 </style>
 <style id="readability-fit-v17">
 /* نسخه خوانا و فیت گوشی */
