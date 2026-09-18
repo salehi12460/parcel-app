@@ -295,9 +295,9 @@ async function startLiveScan(){
 }
 
 function autoSaveScanned(value){
-  const barcode=String(value).trim();
+  let barcode=String(value).trim();
   if(!barcode)return;
-  if(barcode.length>23){toast('بارکدهای بیشتر از ۲۳ رقم ذخیره نمی‌شوند.');return;}
+  if(barcode.length>24)barcode=barcode.slice(0,24);
   if(parcels.some(p=>p.barcode===barcode)){toast('این کد قبلاً در فهرست ثبت شده است.');return;}
   parcels.unshift({id:crypto.randomUUID?crypto.randomUUID():String(Date.now()+Math.random()),barcode,name:'',address:'',createdAt:nowIso(),delivered:false});
   save(); filter='all'; render(); toast('QR / بارکد با موفقیت تشخیص داده شد و خودکار ذخیره شد.');
