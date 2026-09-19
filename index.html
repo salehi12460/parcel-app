@@ -216,7 +216,7 @@ function save(){localStorage.setItem(KEY,JSON.stringify(parcels));localStorage.s
 function archiveKey(iso){const d=iso?new Date(iso):new Date();if(Number.isNaN(d.getTime()))return localDateKey(new Date());return localDateKey(d)}
 function localDateKey(d){const x=d instanceof Date?d:new Date(d);const y=x.getFullYear(),m=String(x.getMonth()+1).padStart(2,'0'),day=String(x.getDate()).padStart(2,'0');return `${y}-${m}-${day}`}
 function refreshArchive(){rebuildArchive();localStorage.setItem(ARCHIVE,JSON.stringify(archiveByDate));return archiveSummary()}
-function rebuildArchive(){const next={};parcels.filter(p=>p.delivered&&p.deliveredAt).forEach(p=>{const k=archiveKey(p.deliveredAt);(next[k]??=[]).push(p.id)});archiveByDate=next;localStorage.setItem(ARCHIVE,JSON.stringify(archiveByDate))}
+function rebuildArchive(){const next={};parcels.filter(p=>!p.deleted&&p.delivered&&p.deliveredAt).forEach(p=>{const k=archiveKey(p.deliveredAt);(next[k]??=[]).push(p.id)});archiveByDate=next;localStorage.setItem(ARCHIVE,JSON.stringify(archiveByDate))}
 function archiveSummary(){return Object.entries(archiveByDate).sort((a,b)=>b[0].localeCompare(a[0])).map(([d,ids])=>({date:d,count:ids.length}))}
 function toast(t){const el=$('#toast');el.textContent=t;el.classList.add('show');clearTimeout(window.__toast);window.__toast=setTimeout(()=>el.classList.remove('show'),2600)}
 function esc(v){return String(v??'').replace(/[&<>'"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[m]))}
@@ -224,8 +224,8 @@ function faDate(d){try{return new Intl.DateTimeFormat('fa-IR',{year:'numeric',mo
 function faTime(d){try{return new Intl.DateTimeFormat('fa-IR',{hour:'2-digit',minute:'2-digit'}).format(new Date(d))}catch(e){return ''}}
 function nowIso(){return new Date().toISOString()}
 function updateProfile(){$('#officeName').textContent=profile.office||'دفتر پستی';$('#cityName').textContent=profile.city||'ثبت نشده';$('#managerName').textContent=profile.manager||'ثبت نشده'}
-function counts(){const today=localDateKey(new Date());const all=parcels.filter(x=>!x.delivered||archiveKey(x.deliveredAt)===today).length;const wait=parcels.filter(x=>!x.delivered).length;const done=parcels.filter(x=>x.delivered&&archiveKey(x.deliveredAt)===today).length;$('#allCount').textContent=all;$('#waitCount').textContent=wait;$('#doneCount').textContent=done}
-function visible(){const q=$('#search').value.trim().toLowerCase();const today=localDateKey(new Date());return parcels.filter(p=>{const deliveredToday=!!p.delivered&&archiveKey(p.deliveredAt)===today;let ok;if(filter==='all')ok=!p.delivered||deliveredToday;else if(filter==='done')ok=deliveredToday;else if(filter==='archive')ok=!!p.delivered;else if(filter==='waiting')ok=!p.delivered;else ok=true;const hay=[p.barcode,p.name,p.address,p.receiver,p.phone].join(' ').toLowerCase();return ok&&(!q||hay.includes(q))}).sort((a,b)=>new Date(b.deliveredAt||b.createdAt||0)-new Date(a.deliveredAt||a.createdAt||0))}
+function counts(){const today=localDateKey(new Date());const active=parcels.filter(x=>!x.deleted);const all=active.filter(x=>!x.delivered||archiveKey(x.deliveredAt)===today).length;const wait=active.filter(x=>!x.delivered).length;const done=active.filter(x=>x.delivered&&archiveKey(x.deliveredAt)===today).length;$('#allCount').textContent=all;$('#waitCount').textContent=wait;$('#doneCount').textContent=done}
+function visible(){const q=$('#search').value.trim().toLowerCase();const today=localDateKey(new Date());return parcels.filter(p=>!p.deleted).filter(p=>{const deliveredToday=!!p.delivered&&archiveKey(p.deliveredAt)===today;let ok;if(filter==='all')ok=!p.delivered||deliveredToday;else if(filter==='done')ok=deliveredToday;else if(filter==='archive')ok=!!p.delivered;else if(filter==='waiting')ok=!p.delivered;else ok=true;const hay=[p.barcode,p.name,p.address,p.receiver,p.phone].join(' ').toLowerCase();return ok&&(!q||hay.includes(q));}).sort((a,b)=>new Date(b.deliveredAt||b.createdAt||0)-new Date(a.deliveredAt||a.createdAt||0))}
 function card(p){const done=!!p.delivered; const name=p.name||'نام گیرنده ثبت نشده'; const media=done?`<div class="proofs"><div class="proof"><div class="proof-title">📷 تصویر تحویل</div>${p.photo?`<img class="proof-img" src="${p.photo}" alt="تصویر تحویل مرسوله">`:`<div class="proof-empty">ثبت نشده</div>`}</div><div class="proof"><div class="proof-title">✍️ امضا</div>${p.signature?`<img class="proof-img signature-img" src="${p.signature}" alt="امضای تحویل‌گیرنده">`:`<div class="proof-empty">ثبت نشده</div>`}</div></div>`:''; const details=done?`<div class="details"><div class="detail"><div class="detail-label">تحویل‌گیرنده</div><div class="detail-value">${esc(p.receiver||'ثبت نشده')}</div></div><div class="detail"><div class="detail-label">تاریخ تحویل</div><div class="detail-value">${faDate(p.deliveredAt)}</div></div><div class="detail"><div class="detail-label">ساعت</div><div class="detail-value">${faTime(p.deliveredAt)}</div></div><div class="detail"><div class="detail-label">شماره تماس</div><div class="detail-value">${esc(p.phone||'ثبت نشده')}</div></div></div>${media}<div class="success-note"><span class="check">✓</span><span>مرسوله با موفقیت تحویل داده شد</span></div>`:`<div class="details"><div class="detail"><div class="detail-label">تاریخ دریافت</div><div class="detail-value">${faDate(p.createdAt)}</div></div><div class="detail"><div class="detail-label">وضعیت</div><div class="detail-value">آماده ثبت تحویل</div></div></div>`; return `<article class="parcel ${done?'done':'waiting'}"><div class="phead"><span class="status ${done?'done':'waiting'}">${done?'✓ تحویل‌شده':'◷ در انتظار'}</span><button class="trash" data-delete="${p.id}" title="حذف مرسوله">⌫</button></div><div class="pbody"><div class="personline"><div><div class="personlabel">نام گیرنده</div><div class="personname">${esc(name)}</div></div><div class="address"><div class="personlabel">نشانی</div>${esc(p.address||'بدون نشانی')}</div></div><div class="barcodebox"><div class="barcode-label">▥ شماره بارکد</div><div class="barcode">${esc(p.barcode)}</div></div>${details}<div class="actions-bottom"><button class="pbtn edit" data-edit="${p.id}">✎ ویرایش</button>${done?`<button class="pbtn restore" data-restore="${p.id}">↶ بازگردانی</button>`:`<button class="pbtn deliver" data-deliver="${p.id}">✓ ثبت تحویل</button>`}</div></div></article>`}
 function archiveCard(p){
   const name=p.name||'نام گیرنده ثبت نشده';
@@ -384,127 +384,158 @@ $$('[data-close]').forEach(b=>b.onclick=()=>{if(b.dataset.close==='scanModal')st
   const t=e.target.closest('button');if(!t)return;const id=t.dataset.delete||t.dataset.edit||t.dataset.deliver||t.dataset.restore;if(!id)return;if(t.dataset.delete){if(confirm('این مرسوله حذف شود؟')){const dp=parcels.find(p=>p.id===id);if(dp){dp.deleted=true;dp.updatedAt=nowIso()}save();render();toast('مرسوله حذف شد.')}}else if(t.dataset.edit)editParcel(id);else if(t.dataset.deliver)openDelivery(id);else if(t.dataset.restore){const p=parcels.find(x=>x.id===id);if(p){p.delivered=false;delete p.receiver;delete p.phone;delete p.deliveredAt;delete p.archiveDate;delete p.photo;touchParcel(p);rebuildArchive();save();filter='waiting';render();toast('مرسوله به فهرست انتظار بازگردانده شد.')}}});
 window.addEventListener('click',e=>{if(e.target.classList.contains('modal'))e.target.classList.remove('show')});rebuildArchive();updateProfile();$('#todayText').textContent=faDate(new Date());setupSignature();render();
 </script><script id="scroll-position-fix">try{history.scrollRestoration='manual'}catch(e){};window.addEventListener('pageshow',function(){setTimeout(function(){window.scrollTo(0,0)},30)});
-/* ===== Google Sheets multi-device sync ===== */
+/* ===== Google Sheets multi-device sync - FINAL ===== */
 const SYNC_API = "https://script.google.com/macros/s/AKfycbw3gF5e30t6pLIQzA_wF_EEmpouggk_eTn8KbvL0RsMd_qRHdnXOGYxqjZ7ONz6M6v8/exec";
-let syncBusy = false;
-let syncTimer = null;
+let syncBusy=false;
+let syncReady=false;
+let syncTimer=null;
+let syncVerifyTimer=null;
 
-function syncStatus(text) {
-  const el = document.getElementById('syncStatus');
-  if (el) el.textContent = text;
+function syncStatus(text){
+  const el=document.getElementById('syncStatus');
+  if(el) el.textContent=text;
 }
 
-function syncEnvelope() {
-  const list=(parcels||[]).map(p=>{
-    const x={...p};
-    if(!x.updatedAt) x.updatedAt=x.createdAt||nowIso();
-    return x;
-  });
+function recordTime(p){
+  const t=Date.parse(p?.updatedAt || p?.createdAt || '');
+  return Number.isFinite(t)?t:0;
+}
+
+function normalizeParcelForSync(p){
+  const x={...p};
+  if(!x.updatedAt) x.updatedAt=x.createdAt||nowIso();
+  if(x.deleted===undefined) x.deleted=false;
+  return x;
+}
+
+function syncEnvelope(list){
   return {
-    version: 1,
-    device: localStorage.getItem('parcel_device_id') || (function() {
-      const id='D-'+Date.now()+'-'+Math.random().toString(36).slice(2,8);
+    version:1,
+    device:localStorage.getItem('parcel_device_id') || (function(){
+      const id='D-'+Date.now()+'-'+Math.random().toString(36).slice(2,10);
       localStorage.setItem('parcel_device_id',id);
       return id;
     })(),
-    parcels: list,
-    profile: profile || {}
+    parcels:(list || parcels || []).map(normalizeParcelForSync),
+    profile:profile || {}
   };
 }
 
-async function syncPush() {
-  try {
-    // POST the whole local snapshot. The server performs timestamp-based
-    // conflict resolution, so an older phone cannot overwrite newer data.
-    const payload = JSON.stringify(syncEnvelope());
-    await fetch(SYNC_API, {
-      method:'POST',
-      mode:'no-cors',
-      headers:{'Content-Type':'text/plain;charset=UTF-8'},
-      body:payload,
-      keepalive:true
-    });
+function mergeParcels(localList, remoteList){
+  const map=new Map();
+  (localList||[]).forEach(p=>{ if(p&&p.id) map.set(String(p.id),normalizeParcelForSync(p)); });
+  (remoteList||[]).forEach(p=>{
+    if(!p||!p.id) return;
+    const id=String(p.id), r=normalizeParcelForSync(p), l=map.get(id);
+    if(!l || recordTime(r)>=recordTime(l)) map.set(id,r);
+  });
+  return [...map.values()];
+}
+
+function saveLocalOnly(){
+  localStorage.setItem(KEY,JSON.stringify(parcels));
+  localStorage.setItem(ARCHIVE,JSON.stringify(archiveByDate));
+}
+
+async function postMergedSnapshot(){
+  const payload=JSON.stringify(syncEnvelope(parcels));
+  try{
+    // text/plain keeps the Apps Script POST request simple and avoids CORS preflight.
+    await fetch(SYNC_API,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=UTF-8'},body:payload,keepalive:true});
     syncStatus('☁️ اطلاعات ارسال شد');
-    clearTimeout(syncTimer);
-    syncTimer=setTimeout(()=>syncStatus('☁️ آماده'),1800);
-  } catch(e) {
-    syncStatus('⚠️ ارسال به سرور ناموفق بود');
+    return true;
+  }catch(e){
+    // sendBeacon is a useful fallback on some mobile browsers.
+    try{
+      const ok=navigator.sendBeacon && navigator.sendBeacon(SYNC_API,new Blob([payload],{type:'text/plain;charset=UTF-8'}));
+      if(ok){syncStatus('☁️ اطلاعات ارسال شد');return true;}
+    }catch(_e){}
+    syncStatus('⚠️ ارسال به سرور انجام نشد');
+    return false;
   }
 }
 
-function syncPull(showToast=true) {
-  if (syncBusy) return;
+async function syncPush(){
+  if(!syncReady || syncBusy) return;
+  clearTimeout(syncTimer);
+  syncTimer=setTimeout(async()=>{
+    await postMergedSnapshot();
+    clearTimeout(syncVerifyTimer);
+    syncVerifyTimer=setTimeout(()=>syncPull(false,true),900);
+  },250);
+}
+
+function syncPull(showToast=true,verifyOnly=false){
+  if(syncBusy) return;
   syncBusy=true;
   syncStatus('🔄 در حال دریافت اطلاعات…');
-
-  const cb='__parcelSync_'+Date.now()+'_'+Math.floor(Math.random()*10000);
+  const cb='__parcelSync_'+Date.now()+'_'+Math.floor(Math.random()*100000);
   const script=document.createElement('script');
+  let finished=false;
 
-  window[cb]=function(data) {
-    try {
-      if (!data || !data.ok) throw new Error((data&&data.error)||'خطای سرور');
+  const finish=()=>{
+    if(finished) return;
+    finished=true;
+    syncBusy=false;
+    script.remove();
+    try{delete window[cb]}catch(e){window[cb]=undefined}
+  };
+
+  window[cb]=function(data){
+    try{
+      if(!data || !data.ok) throw new Error((data&&data.error)||'خطای سرور');
       const remote=Array.isArray(data.parcels)?data.parcels:[];
-      const map=new Map((parcels||[]).map(p=>[String(p.id),p]));
+      const before=JSON.stringify(parcels);
+      parcels=mergeParcels(parcels,remote);
 
-      remote.forEach(r=>{
-        const id=String(r.id||'');
-        if(!id) return;
-        const local=map.get(id);
-        if(!local) {
-          map.set(id,r);
-          return;
-        }
-        const rt=new Date(r.updatedAt||r.createdAt||0).getTime()||0;
-        const lt=new Date(local.updatedAt||local.createdAt||0).getTime()||0;
-        if(rt>=lt) map.set(id,r);
-      });
+      // Server profile is shared too; local values are kept if server has none.
+      if(data.profile && typeof data.profile==='object'){
+        profile={...(data.profile||{}),...(profile||{})};
+        localStorage.setItem(PROFILE,JSON.stringify(profile));
+      }
 
-      parcels=[...map.values()].filter(p=>!p.deleted);
       rebuildArchive();
       saveLocalOnly();
       render();
       updateProfile();
+      syncReady=true;
+
+      const changed=before!==JSON.stringify(parcels);
       syncStatus('☁️ همگام شد • '+new Date().toLocaleTimeString('fa-IR'));
-      // Send back only the merged snapshot. The server timestamp check prevents
-      // an older local record from overwriting a newer remote record.
-      syncPush();
-      if(showToast) toast('اطلاعات همه گوشی‌ها به‌روز شد. ✓');
-    } catch(e) {
-      syncStatus('⚠️ خطا در همگام‌سازی');
-      if(showToast) toast('خطا در دریافت اطلاعات مشترک');
-    } finally {
-      syncBusy=false;
-      script.remove();
-      try{delete window[cb]}catch(e){window[cb]=undefined}
-    }
+
+      // Push the merged snapshot so records created on either device reach the server.
+      postMergedSnapshot().then(()=>{
+        if(showToast) toast(changed?'اطلاعات همه دستگاه‌ها همگام شد. ✓':'اطلاعات با سرور بررسی شد. ✓');
+      });
+    }catch(e){
+      console.error('sync pull error',e);
+      syncStatus('⚠️ خطا در دریافت اطلاعات');
+      if(showToast) toast('دریافت اطلاعات مشترک ناموفق بود.');
+      syncReady=true;
+    }finally{finish();}
   };
 
   window[cb].onerror=function(){
-    syncBusy=false;
     syncStatus('⚠️ سرور در دسترس نیست');
-    script.remove();
-    try{delete window[cb]}catch(e){window[cb]=undefined}
+    syncReady=true;
     if(showToast) toast('ارتباط با سرور برقرار نشد.');
+    finish();
   };
 
   script.src=SYNC_API+'?action=pull&callback='+encodeURIComponent(cb)+'&_='+Date.now();
   document.body.appendChild(script);
 }
 
-function saveLocalOnly() {
-  localStorage.setItem(KEY,JSON.stringify(parcels));
-  localStorage.setItem(ARCHIVE,JSON.stringify(archiveByDate));
-}
-
-const originalSave = save;
-save = function() {
+// Replace the normal local save with a local-first save + queued cloud sync.
+const originalSave=save;
+save=function(){
   originalSave();
   syncPush();
 };
 
-function addSyncUI() {
+function addSyncUI(){
   const actions=document.querySelector('.actions');
-  if(actions && !document.getElementById('syncBtn')) {
+  if(actions && !document.getElementById('syncBtn')){
     const b=document.createElement('button');
     b.className='action';
     b.id='syncBtn';
@@ -514,11 +545,11 @@ function addSyncUI() {
   }
 }
 
+// Do one authoritative pull when the app opens. After that, every local change is queued.
 window.addEventListener('load',function(){
   setTimeout(function(){
     addSyncUI();
     syncPull(false);
   },150);
 });
-
 </script></body></html>
