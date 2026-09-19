@@ -472,10 +472,17 @@ function syncPull(showToast=true,verifyOnly=false){
   const cb='__parcelSync_'+Date.now()+'_'+Math.floor(Math.random()*100000);
   const script=document.createElement('script');
   let finished=false;
+  const timeout=setTimeout(()=>{
+    if(finished) return;
+    syncStatus('⚠️ پاسخ سرور دریافت نشد');
+    if(showToast) toast('سرور پاسخ نداد. اتصال و Deployment را بررسی کنید.');
+    finish();
+  },15000);
 
   const finish=()=>{
     if(finished) return;
     finished=true;
+    clearTimeout(timeout);
     syncBusy=false;
     script.remove();
     try{delete window[cb]}catch(e){window[cb]=undefined}
