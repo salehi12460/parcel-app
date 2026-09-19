@@ -376,6 +376,139 @@ $$('[data-close]').forEach(b=>b.onclick=()=>{if(b.dataset.close==='scanModal')st
   const item=e.target.closest('[data-archive-item]');if(item&&!e.target.closest('button')){item.classList.toggle('open');return}
   const day=e.target.closest('[data-archive-date]');
   if(day){const d=day.dataset.archiveDate;openArchives.has(d)?openArchives.delete(d):openArchives.add(d);render();return}
-  const t=e.target.closest('button');if(!t)return;const id=t.dataset.delete||t.dataset.edit||t.dataset.deliver||t.dataset.restore;if(!id)return;if(t.dataset.delete){if(confirm('این مرسوله حذف شود؟')){parcels=parcels.filter(p=>p.id!==id);save();render();toast('مرسوله حذف شد.')}}else if(t.dataset.edit)editParcel(id);else if(t.dataset.deliver)openDelivery(id);else if(t.dataset.restore){const p=parcels.find(x=>x.id===id);if(p){p.delivered=false;delete p.receiver;delete p.phone;delete p.deliveredAt;delete p.archiveDate;delete p.photo;rebuildArchive();save();filter='waiting';render();toast('مرسوله به فهرست انتظار بازگردانده شد.')}}});
+  const t=e.target.closest('button');if(!t)return;const id=t.dataset.delete||t.dataset.edit||t.dataset.deliver||t.dataset.restore;if(!id)return;if(t.dataset.delete){if(confirm('این مرسوله حذف شود؟')){const dp=parcels.find(p=>p.id===id);if(dp){dp.deleted=true;dp.updatedAt=nowIso()}save();render();toast('مرسوله حذف شد.')}}else if(t.dataset.edit)editParcel(id);else if(t.dataset.deliver)openDelivery(id);else if(t.dataset.restore){const p=parcels.find(x=>x.id===id);if(p){p.delivered=false;delete p.receiver;delete p.phone;delete p.deliveredAt;delete p.archiveDate;delete p.photo;rebuildArchive();save();filter='waiting';render();toast('مرسوله به فهرست انتظار بازگردانده شد.')}}});
 window.addEventListener('click',e=>{if(e.target.classList.contains('modal'))e.target.classList.remove('show')});rebuildArchive();updateProfile();$('#todayText').textContent=faDate(new Date());setupSignature();render();
-</script><script id="scroll-position-fix">try{history.scrollRestoration='manual'}catch(e){};window.addEventListener('pageshow',function(){setTimeout(function(){window.scrollTo(0,0)},30)});</script></body></html>
+</script><script id="scroll-position-fix">try{history.scrollRestoration='manual'}catch(e){};window.addEventListener('pageshow',function(){setTimeout(function(){window.scrollTo(0,0)},30)});
+/* ===== Google Sheets multi-device sync ===== */
+const SYNC_API = "https://script.google.com/macros/s/AKfycbw3gF5e30t6pLIQzA_wF_EEmpouggk_eTn8KbvL0RsMd_qRHdnXOGYxqjZ7ONz6M6v8/exec";
+let syncBusy = false;
+let syncTimer = null;
+
+function syncStatus(text) {
+  const el = document.getElementById('syncStatus');
+  if (el) el.textContent = text;
+}
+
+function syncEnvelope() {
+  return {
+    version: 1,
+    device: localStorage.getItem('parcel_device_id') || (function() {
+      const id='D-'+Date.now()+'-'+Math.random().toString(36).slice(2,8);
+      localStorage.setItem('parcel_device_id',id);
+      return id;
+    })(),
+    parcels: parcels || [],
+    profile: profile || {}
+  };
+}
+
+async function syncPush() {
+  try {
+    const payload = JSON.stringify(syncEnvelope());
+    if (navigator.sendBeacon) {
+      const blob = new Blob([payload], {type:'text/plain;charset=UTF-8'});
+      navigator.sendBeacon(SYNC_API, blob);
+    } else {
+      fetch(SYNC_API, {
+        method:'POST',
+        mode:'no-cors',
+        headers:{'Content-Type':'text/plain;charset=UTF-8'},
+        body:payload,
+        keepalive:true
+      }).catch(()=>{});
+    }
+    syncStatus('☁️ ذخیره در حال همگام‌سازی…');
+    clearTimeout(syncTimer);
+    syncTimer=setTimeout(()=>syncStatus('☁️ آماده'),1500);
+  } catch(e) {
+    syncStatus('⚠️ همگام‌سازی انجام نشد');
+  }
+}
+
+function syncPull(showToast=true) {
+  if (syncBusy) return;
+  syncBusy=true;
+  syncStatus('🔄 در حال دریافت اطلاعات…');
+
+  const cb='__parcelSync_'+Date.now()+'_'+Math.floor(Math.random()*10000);
+  const script=document.createElement('script');
+
+  window[cb]=function(data) {
+    try {
+      if (!data || !data.ok) throw new Error((data&&data.error)||'خطای سرور');
+      const remote=Array.isArray(data.parcels)?data.parcels:[];
+      const map=new Map((parcels||[]).map(p=>[String(p.id),p]));
+
+      remote.forEach(r=>{
+        const id=String(r.id||'');
+        if(!id) return;
+        const local=map.get(id);
+        if(!local) {
+          map.set(id,r);
+          return;
+        }
+        const rt=new Date(r.updatedAt||r.createdAt||0).getTime()||0;
+        const lt=new Date(local.updatedAt||local.createdAt||0).getTime()||0;
+        if(rt>=lt) map.set(id,r);
+      });
+
+      parcels=[...map.values()].filter(p=>!p.deleted);
+      rebuildArchive();
+      saveLocalOnly();
+      render();
+      updateProfile();
+      syncStatus('☁️ همگام شد • '+new Date().toLocaleTimeString('fa-IR'));
+      if(showToast) toast('اطلاعات همه گوشی‌ها به‌روز شد. ✓');
+    } catch(e) {
+      syncStatus('⚠️ خطا در همگام‌سازی');
+      if(showToast) toast('خطا در دریافت اطلاعات مشترک');
+    } finally {
+      syncBusy=false;
+      script.remove();
+      try{delete window[cb]}catch(e){window[cb]=undefined}
+    }
+  };
+
+  window[cb].onerror=function(){
+    syncBusy=false;
+    syncStatus('⚠️ سرور در دسترس نیست');
+    script.remove();
+    try{delete window[cb]}catch(e){window[cb]=undefined}
+    if(showToast) toast('ارتباط با سرور برقرار نشد.');
+  };
+
+  script.src=SYNC_API+'?action=pull&callback='+encodeURIComponent(cb)+'&_='+Date.now();
+  document.body.appendChild(script);
+}
+
+function saveLocalOnly() {
+  localStorage.setItem(KEY,JSON.stringify(parcels));
+  localStorage.setItem(ARCHIVE,JSON.stringify(archiveByDate));
+}
+
+const originalSave = save;
+save = function() {
+  originalSave();
+  syncPush();
+};
+
+function addSyncUI() {
+  const actions=document.querySelector('.actions');
+  if(actions && !document.getElementById('syncBtn')) {
+    const b=document.createElement('button');
+    b.className='action';
+    b.id='syncBtn';
+    b.innerHTML='<div class="ico">↻</div><strong>همگام‌سازی</strong><span id="syncStatus">☁️ دریافت اطلاعات مشترک</span>';
+    b.onclick=()=>syncPull(true);
+    actions.insertBefore(b,actions.firstChild);
+  }
+}
+
+window.addEventListener('load',function(){
+  setTimeout(function(){
+    addSyncUI();
+    syncPull(false);
+  },150);
+});
+
+</script></body></html>
