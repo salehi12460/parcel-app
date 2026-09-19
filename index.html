@@ -268,12 +268,17 @@ function editParcel(id){const p=parcels.find(x=>x.id===id);if(!p)return;editingI
 function openDelivery(id){deliveryId=id;$('#receiverInput').value='';$('#phoneInput').value='';$('#photoInput').value='';clearSig();openModal('deliveryModal')}
 function clearSig(){const c=$('#signatureCanvas'),ctx=c.getContext('2d');ctx.clearRect(0,0,c.width,c.height);signatureDirty=false}
 function setupSignature(){const c=$('#signatureCanvas'),ctx=c.getContext('2d');let drawing=false;function pos(e){const r=c.getBoundingClientRect(),pt=e.touches?e.touches[0]:e;return {x:(pt.clientX-r.left)*c.width/r.width,y:(pt.clientY-r.top)*c.height/r.height}}function start(e){e.preventDefault();drawing=true;const p=pos(e);ctx.beginPath();ctx.moveTo(p.x,p.y)}function move(e){if(!drawing)return;e.preventDefault();const p=pos(e);ctx.lineTo(p.x,p.y);ctx.strokeStyle='#173b67';ctx.lineWidth=5;ctx.lineCap='round';ctx.stroke();signatureDirty=true}function end(){drawing=false}['mousedown','touchstart'].forEach(x=>c.addEventListener(x,start,{passive:false}));['mousemove','touchmove'].forEach(x=>c.addEventListener(x,move,{passive:false}));['mouseup','mouseleave','touchend'].forEach(x=>c.addEventListener(x,end))}
-function saveParcel(){const barcode=$('#barcodeInput').value.replace(/\D/g,'');if(barcode.length<15||barcode.length>23)return toast('بارکد باید بین ۱۵ تا ۲۳ رقم باشد.');const dup=parcels.find(p=>p.barcode===barcode&&p.id!==editingId);if(dup)return toast('این بارکد قبلاً ثبت شده است.');if(editingId){const p=parcels.find(x=>x.id===editingId);p.barcode=barcode;p.name=$('#nameInput').value.trim();p.address=$('#addressInput').value.trim()}else parcels.push({id:crypto.randomUUID?crypto.randomUUID():String(Date.now()),barcode,name:$('#nameInput').value.trim(),address:$('#addressInput').value.trim(),createdAt:nowIso(),delivered:false});save();closeModal('parcelModal');render();toast('مرسوله ذخیره شد.')}
-function confirmDelivery(){const p=parcels.find(x=>x.id===deliveryId);const receiver=$('#receiverInput').value.trim(),phone=$('#phoneInput').value.trim();if(!p)return;if(!receiver||!phone)return toast('نام تحویل‌گیرنده و شماره تماس را کامل کنید.');if(!signatureDirty)return toast('لطفاً امضا را ثبت کنید.');p.delivered=true;p.receiver=receiver;p.phone=phone;p.deliveredAt=nowIso();p.archiveDate=archiveKey(p.deliveredAt);p.signature=$('#signatureCanvas').toDataURL('image/png');const f=$('#photoInput').files[0];if(f){const r=new FileReader();r.onload=()=>{p.photo=r.result;save();finishDelivery()};r.readAsDataURL(f)}else finishDelivery()}
+function touchParcel(p){
+  if(p) p.updatedAt=nowIso();
+  return p;
+}
+
+function saveParcel(){const barcode=$('#barcodeInput').value.replace(/\D/g,'');if(barcode.length<15||barcode.length>23)return toast('بارکد باید بین ۱۵ تا ۲۳ رقم باشد.');const dup=parcels.find(p=>p.barcode===barcode&&p.id!==editingId);if(dup)return toast('این بارکد قبلاً ثبت شده است.');if(editingId){const p=parcels.find(x=>x.id===editingId);p.barcode=barcode;p.name=$('#nameInput').value.trim();p.address=$('#addressInput').value.trim();touchParcel(p)}else{const now=nowIso();parcels.push({id:crypto.randomUUID?crypto.randomUUID():String(Date.now()),barcode,name:$('#nameInput').value.trim(),address:$('#addressInput').value.trim(),createdAt:now,updatedAt:now,delivered:false,deleted:false})}save();closeModal('parcelModal');render();toast('مرسوله ذخیره شد.')}
+function confirmDelivery(){const p=parcels.find(x=>x.id===deliveryId);const receiver=$('#receiverInput').value.trim(),phone=$('#phoneInput').value.trim();if(!p)return;if(!receiver||!phone)return toast('نام تحویل‌گیرنده و شماره تماس را کامل کنید.');if(!signatureDirty)return toast('لطفاً امضا را ثبت کنید.');p.delivered=true;p.receiver=receiver;p.phone=phone;p.deliveredAt=nowIso();p.archiveDate=archiveKey(p.deliveredAt);p.signature=$('#signatureCanvas').toDataURL('image/png');touchParcel(p);const f=$('#photoInput').files[0];if(f){const r=new FileReader();r.onload=()=>{p.photo=r.result;save();finishDelivery()};r.readAsDataURL(f)}else finishDelivery()}
 function finishDelivery(){refreshArchive();save();closeModal('deliveryModal');filter='done';render();toast('تحویل با تاریخ و ساعت خودکار ثبت شد و در بایگانی روز قرار گرفت.')}
 function backup(){rebuildArchive();const data={version:3,exportedAt:nowIso(),profile,parcels,archiveByDate};const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='پشتیبان-مرسولات-'+new Date().toISOString().slice(0,10)+'.json';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),500);toast('فایل پشتیبان آماده شد.')}
 function restore(file){const r=new FileReader();r.onload=()=>{try{const d=JSON.parse(r.result);if(!Array.isArray(d.parcels))throw 0;let added=0;d.parcels.forEach(x=>{if(x.barcode&&!parcels.some(p=>p.barcode===x.barcode)){parcels.push(x);added++}});if(d.profile)profile={...profile,...d.profile};if(d.archiveByDate&&typeof d.archiveByDate==='object')archiveByDate={...archiveByDate,...d.archiveByDate};rebuildArchive();save();localStorage.setItem(PROFILE,JSON.stringify(profile));updateProfile();render();toast(`${added} مرسوله بازیابی شد؛ اطلاعات قبلی حفظ شد.`)}catch(e){toast('فایل پشتیبان معتبر نیست.')}};r.readAsText(file)}
-async function gallery(){const input=document.createElement('input');input.type='file';input.accept='image/*';input.onchange=async()=>{const file=input.files[0];if(!file)return;toast('در حال بررسی تصویر...');let found=[];try{if('BarcodeDetector' in window){const det=new BarcodeDetector();const bmp=await createImageBitmap(file);const codes=await det.detect(bmp);found=codes.map(x=>(x.rawValue||'').replace(/\D/g,''))}}catch(e){}try{if(!found.length&&window.Tesseract){const out=await Tesseract.recognize(file,'eng');found=(out.data.text.match(/\d{15,24}/g)||[])}}catch(e){}found=[...new Set(found.filter(x=>x.length>=15&&x.length<=24))].filter(x=>!parcels.some(p=>p.barcode===x));if(!found.length)return toast('بارکد معتبر جدیدی در تصویر پیدا نشد.');found.forEach(x=>parcels.push({id:crypto.randomUUID?crypto.randomUUID():String(Date.now()+Math.random()),barcode:x,name:'',address:'',createdAt:nowIso(),delivered:false}));save();render();toast(`${found.length} بارکد به فهرست اضافه شد.`)};input.click()}
+async function gallery(){const input=document.createElement('input');input.type='file';input.accept='image/*';input.onchange=async()=>{const file=input.files[0];if(!file)return;toast('در حال بررسی تصویر...');let found=[];try{if('BarcodeDetector' in window){const det=new BarcodeDetector();const bmp=await createImageBitmap(file);const codes=await det.detect(bmp);found=codes.map(x=>(x.rawValue||'').replace(/\D/g,''))}}catch(e){}try{if(!found.length&&window.Tesseract){const out=await Tesseract.recognize(file,'eng');found=(out.data.text.match(/\d{15,24}/g)||[])}}catch(e){}found=[...new Set(found.filter(x=>x.length>=15&&x.length<=24))].filter(x=>!parcels.some(p=>p.barcode===x));if(!found.length)return toast('بارکد معتبر جدیدی در تصویر پیدا نشد.');found.forEach(x=>{const now=nowIso();parcels.push({id:crypto.randomUUID?crypto.randomUUID():String(Date.now()+Math.random()),barcode:x,name:'',address:'',createdAt:now,updatedAt:now,delivered:false,deleted:false})});save();render();toast(`${found.length} بارکد به فهرست اضافه شد.`)};input.click()}
 let scanStream=null, scanReader=null, scanControls=null, scanActive=false, scanLast='', scanTimer=null, scanMode='save';
 
 function scanErrorMessage(e){
@@ -366,7 +371,7 @@ function autoSaveScanned(value){
   if(!barcode)return;
   if(barcode.length>24)barcode=barcode.slice(0,24);
   if(parcels.some(p=>p.barcode===barcode)){toast('این کد قبلاً در فهرست ثبت شده است.');return;}
-  parcels.unshift({id:crypto.randomUUID?crypto.randomUUID():String(Date.now()+Math.random()),barcode,name:'',address:'',createdAt:nowIso(),delivered:false});
+  const now=nowIso();parcels.unshift({id:crypto.randomUUID?crypto.randomUUID():String(Date.now()+Math.random()),barcode,name:'',address:'',createdAt:now,updatedAt:now,delivered:false,deleted:false});
   save(); filter='all'; render(); toast('QR / بارکد با موفقیت تشخیص داده شد و خودکار ذخیره شد.');
 }
 function stopLiveScan(close=true){scanActive=false;scanLast='';if(scanTimer){clearInterval(scanTimer);scanTimer=null}try{if(scanControls&&scanControls.stop)scanControls.stop()}catch(e){}scanControls=null;try{if(scanReader&&scanReader.reset)scanReader.reset()}catch(e){}scanReader=null;if(scanStream){scanStream.getTracks().forEach(t=>t.stop());scanStream=null}const v=$('#scanVideo');if(v){try{v.pause()}catch(e){}v.srcObject=null}if(close)closeModal('scanModal')}
@@ -376,7 +381,7 @@ $$('[data-close]').forEach(b=>b.onclick=()=>{if(b.dataset.close==='scanModal')st
   const item=e.target.closest('[data-archive-item]');if(item&&!e.target.closest('button')){item.classList.toggle('open');return}
   const day=e.target.closest('[data-archive-date]');
   if(day){const d=day.dataset.archiveDate;openArchives.has(d)?openArchives.delete(d):openArchives.add(d);render();return}
-  const t=e.target.closest('button');if(!t)return;const id=t.dataset.delete||t.dataset.edit||t.dataset.deliver||t.dataset.restore;if(!id)return;if(t.dataset.delete){if(confirm('این مرسوله حذف شود؟')){const dp=parcels.find(p=>p.id===id);if(dp){dp.deleted=true;dp.updatedAt=nowIso()}save();render();toast('مرسوله حذف شد.')}}else if(t.dataset.edit)editParcel(id);else if(t.dataset.deliver)openDelivery(id);else if(t.dataset.restore){const p=parcels.find(x=>x.id===id);if(p){p.delivered=false;delete p.receiver;delete p.phone;delete p.deliveredAt;delete p.archiveDate;delete p.photo;rebuildArchive();save();filter='waiting';render();toast('مرسوله به فهرست انتظار بازگردانده شد.')}}});
+  const t=e.target.closest('button');if(!t)return;const id=t.dataset.delete||t.dataset.edit||t.dataset.deliver||t.dataset.restore;if(!id)return;if(t.dataset.delete){if(confirm('این مرسوله حذف شود؟')){const dp=parcels.find(p=>p.id===id);if(dp){dp.deleted=true;dp.updatedAt=nowIso()}save();render();toast('مرسوله حذف شد.')}}else if(t.dataset.edit)editParcel(id);else if(t.dataset.deliver)openDelivery(id);else if(t.dataset.restore){const p=parcels.find(x=>x.id===id);if(p){p.delivered=false;delete p.receiver;delete p.phone;delete p.deliveredAt;delete p.archiveDate;delete p.photo;touchParcel(p);rebuildArchive();save();filter='waiting';render();toast('مرسوله به فهرست انتظار بازگردانده شد.')}}});
 window.addEventListener('click',e=>{if(e.target.classList.contains('modal'))e.target.classList.remove('show')});rebuildArchive();updateProfile();$('#todayText').textContent=faDate(new Date());setupSignature();render();
 </script><script id="scroll-position-fix">try{history.scrollRestoration='manual'}catch(e){};window.addEventListener('pageshow',function(){setTimeout(function(){window.scrollTo(0,0)},30)});
 /* ===== Google Sheets multi-device sync ===== */
@@ -390,6 +395,11 @@ function syncStatus(text) {
 }
 
 function syncEnvelope() {
+  const list=(parcels||[]).map(p=>{
+    const x={...p};
+    if(!x.updatedAt) x.updatedAt=x.createdAt||nowIso();
+    return x;
+  });
   return {
     version: 1,
     device: localStorage.getItem('parcel_device_id') || (function() {
@@ -397,31 +407,28 @@ function syncEnvelope() {
       localStorage.setItem('parcel_device_id',id);
       return id;
     })(),
-    parcels: parcels || [],
+    parcels: list,
     profile: profile || {}
   };
 }
 
 async function syncPush() {
   try {
+    // POST the whole local snapshot. The server performs timestamp-based
+    // conflict resolution, so an older phone cannot overwrite newer data.
     const payload = JSON.stringify(syncEnvelope());
-    if (navigator.sendBeacon) {
-      const blob = new Blob([payload], {type:'text/plain;charset=UTF-8'});
-      navigator.sendBeacon(SYNC_API, blob);
-    } else {
-      fetch(SYNC_API, {
-        method:'POST',
-        mode:'no-cors',
-        headers:{'Content-Type':'text/plain;charset=UTF-8'},
-        body:payload,
-        keepalive:true
-      }).catch(()=>{});
-    }
-    syncStatus('☁️ ذخیره در حال همگام‌سازی…');
+    await fetch(SYNC_API, {
+      method:'POST',
+      mode:'no-cors',
+      headers:{'Content-Type':'text/plain;charset=UTF-8'},
+      body:payload,
+      keepalive:true
+    });
+    syncStatus('☁️ اطلاعات ارسال شد');
     clearTimeout(syncTimer);
-    syncTimer=setTimeout(()=>syncStatus('☁️ آماده'),1500);
+    syncTimer=setTimeout(()=>syncStatus('☁️ آماده'),1800);
   } catch(e) {
-    syncStatus('⚠️ همگام‌سازی انجام نشد');
+    syncStatus('⚠️ ارسال به سرور ناموفق بود');
   }
 }
 
@@ -458,6 +465,9 @@ function syncPull(showToast=true) {
       render();
       updateProfile();
       syncStatus('☁️ همگام شد • '+new Date().toLocaleTimeString('fa-IR'));
+      // Send back only the merged snapshot. The server timestamp check prevents
+      // an older local record from overwriting a newer remote record.
+      syncPush();
       if(showToast) toast('اطلاعات همه گوشی‌ها به‌روز شد. ✓');
     } catch(e) {
       syncStatus('⚠️ خطا در همگام‌سازی');
