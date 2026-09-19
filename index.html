@@ -439,17 +439,29 @@ function saveLocalOnly(){
 
 async function postMergedSnapshot(){
   const payload=JSON.stringify(syncEnvelope(parcels));
+  // Use a normal cross-origin HTML form as the primary POST transport.
+  // This avoids browser CORS/no-cors/redirect differences on GitHub Pages.
   try{
-    // text/plain keeps the Apps Script POST request simple and avoids CORS preflight.
-    await fetch(SYNC_API,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=UTF-8'},body:payload,keepalive:true});
-    syncStatus('☁️ اطلاعات ارسال شد');
+    const frame=document.createElement('iframe');
+    frame.name='parcel_sync_'+Date.now()+'_'+Math.floor(Math.random()*100000);
+    frame.style.display='none';
+    document.body.appendChild(frame);
+    const form=document.createElement('form');
+    form.method='POST';
+    form.action=SYNC_API;
+    form.target=frame.name;
+    form.style.display='none';
+    const input=document.createElement('textarea');
+    input.name='payload';
+    input.value=payload;
+    form.appendChild(input);
+    document.body.appendChild(form);
+    form.submit();
+    setTimeout(()=>{try{form.remove();frame.remove()}catch(e){}},12000);
+    syncStatus('☁️ اطلاعات برای سرور ارسال شد؛ در حال تأیید…');
     return true;
   }catch(e){
-    // sendBeacon is a useful fallback on some mobile browsers.
-    try{
-      const ok=navigator.sendBeacon && navigator.sendBeacon(SYNC_API,new Blob([payload],{type:'text/plain;charset=UTF-8'}));
-      if(ok){syncStatus('☁️ اطلاعات ارسال شد');return true;}
-    }catch(_e){}
+    console.error('sync POST error',e);
     syncStatus('⚠️ ارسال به سرور انجام نشد');
     return false;
   }
@@ -510,10 +522,14 @@ function syncPull(showToast=true,verifyOnly=false){
       const changed=before!==JSON.stringify(parcels);
       syncStatus('☁️ همگام شد • '+new Date().toLocaleTimeString('fa-IR'));
 
-      // Push the merged snapshot so records created on either device reach the server.
-      postMergedSnapshot().then(()=>{
-        if(showToast) toast(changed?'اطلاعات همه دستگاه‌ها همگام شد. ✓':'اطلاعات با سرور بررسی شد. ✓');
-      });
+      // Push only after a normal pull. Verification pulls must not start a loop.
+      if(!verifyOnly){
+        postMergedSnapshot().then(()=>{
+          if(showToast) toast(changed?'اطلاعات همه دستگاه‌ها همگام شد. ✓':'اطلاعات با سرور بررسی شد. ✓');
+        });
+      } else if(showToast) {
+        toast('اطلاعات با سرور بررسی شد. ✓');
+      }
     }catch(e){
       console.error('sync pull error',e);
       syncStatus('⚠️ خطا در دریافت اطلاعات');
