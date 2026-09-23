@@ -3,15 +3,11 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<link rel="manifest" href="manifest.json">
-<link rel="icon" type="image/png" sizes="64x64" href="favicon.png">
-<link rel="apple-touch-icon" href="icon-192.png">
-<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#f6f8fc">
+<link rel="manifest" href="./manifest.json">
+<link rel="icon" href="./favicon.png" type="image/png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="مرسولات پستی">
-<meta name="application-name" content="مرسولات پستی">
-
-<meta name="theme-color" content="#f6f8fc">
 <title>سامانه مدیریت مرسولات</title>
 <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@zxing/browser@0.2.1/umd/zxing-browser.min.js"></script>
@@ -704,8 +700,10 @@ body[data-bottom-view="archive"] #listHead h2::after{content:' روزانه';}
 
 <style id="contacts-pro-design">
 .contacts-pro{padding:7px 0 88px;color:#17324d}.cp-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:18px 16px;border-radius:24px;background:linear-gradient(135deg,#0f6fae 0%,#2563eb 65%,#3b82f6 100%);color:#fff;box-shadow:0 10px 25px rgba(37,99,235,.18)}.cp-eyebrow{font-size:9px;font-weight:800;opacity:.8}.cp-head h2{margin:3px 0;font-size:24px;font-weight:900}.cp-head-copy span{font-size:10px;opacity:.88}.cp-head-actions{display:flex;gap:7px}.cp-head-btn{position:relative;width:45px;height:45px;border:1px solid rgba(255,255,255,.22);border-radius:14px;background:rgba(255,255,255,.16);color:#fff;display:flex;align-items:center;justify-content:center}.cp-head-btn svg{width:24px;height:24px}.cp-add b{position:absolute;right:3px;bottom:1px;font-size:15px}.cp-search{height:48px;margin-top:10px;display:flex;align-items:center;gap:9px;background:#fff;border:1px solid #e2eaf2;border-radius:17px;padding:0 12px;box-shadow:0 5px 15px rgba(20,50,80,.05)}.cp-search svg{width:21px;height:21px;color:#64748b}.cp-search input{flex:1;border:0!important;outline:0!important;background:transparent!important;font-size:12px!important;color:#17324d}.cp-tools{margin-top:10px;padding:8px 10px;background:#fff;border:1px solid #e2eaf2;border-radius:16px;display:flex;align-items:center;gap:9px;font-size:10px;position:sticky;top:6px;z-index:5;box-shadow:0 4px 12px rgba(20,50,80,.04)}.cp-select{display:flex;align-items:center;gap:6px;font-weight:800}.cp-select input{accent-color:#2563eb}.cp-tools>#selectedCount{min-width:42px;text-align:center;color:#17324d;font-weight:900;direction:ltr}.cp-tool-icon{position:relative;width:34px;height:32px;border:1px solid #dbe5ef;border-radius:9px;background:#f8fbff;color:#2563eb;display:flex;align-items:center;justify-content:center;flex:none;padding:0}.cp-tool-icon svg{width:18px;height:18px}.cp-add-inline{margin-left:0}.cp-add-inline b{position:absolute;right:1px;bottom:0;font-size:11px;line-height:1;font-weight:900;background:#fff;border-radius:50%;padding:0 1px}.cp-group{width:36px;height:34px;border:1px solid #dbe5ef;border-radius:10px;padding:0;background:#17324d;color:#fff;display:flex;align-items:center;justify-content:center;flex:none}.cp-group svg{width:20px;height:20px}.cp-tools .cp-tools-spacer{flex:1;min-width:4px}.cp-card{margin-top:9px;background:#fff;border:1px solid #e2eaf2;border-radius:19px;padding:12px;box-shadow:0 4px 15px rgba(20,50,80,.045)}.cp-main{display:flex;align-items:center;gap:9px}.cp-main input{accent-color:#2563eb}.cp-avatar{width:49px;height:49px;min-width:49px;border-radius:15px;background:#eef5ff;color:#2563eb;display:flex;align-items:center;justify-content:center;border:1px solid #d8e7fa}.cp-avatar svg{width:29px;height:29px}.cp-info{min-width:0;display:flex;flex-direction:column;gap:5px}.cp-info strong{font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.cp-info span{font-size:11px;color:#64748b;direction:ltr;text-align:right}.cp-actions{display:flex;justify-content:flex-end;gap:7px;margin-top:11px;padding-top:9px;border-top:1px solid #eef2f6}.cp-act{width:47px;height:40px;border:1px solid;border-radius:12px;background:#fff;display:flex;align-items:center;justify-content:center}.cp-act svg{width:22px;height:22px}.cp-act.edit{color:#2563eb;background:#eff6ff;border-color:#bfdbfe}.cp-act.sms{color:#b45309;background:#fffbeb;border-color:#fde68a}.cp-act.call{color:#15803d;background:#ecfdf5;border-color:#bbf7d0}.cp-act.del{width:39px;color:#dc2626;background:#fef2f2;border-color:#fecaca}.cp-act.del svg{width:19px;height:19px}.cp-empty{text-align:center;margin-top:15px;padding:38px 20px;background:#fff;border:1px dashed #cbd8e5;border-radius:20px}.cp-empty svg{width:42px;height:42px;color:#2563eb}.cp-empty strong{display:block;margin-top:8px}.cp-empty span{display:block;margin-top:5px;font-size:10px;color:#64748b}
-</style><style id="contacts-view-guard">body[data-bottom-view="contacts"] #summarySection,body[data-bottom-view="contacts"] #operationsSection{display:none!important}body[data-bottom-view="contacts"] #list{display:block!important}</style><style id="final-contact-add-polish">.cp-tools .cp-add-inline{width:30px!important;height:30px!important;min-width:30px!important;flex:0 0 30px!important;padding:0!important;margin:0!important;border-radius:8px!important;position:relative!important}.cp-tools .cp-add-inline svg{width:16px!important;height:16px!important}.cp-tools .cp-add-inline b{position:absolute!important;right:-2px!important;bottom:-2px!important;font-size:10px!important;line-height:11px!important;min-width:11px!important;height:11px!important;border-radius:50%!important;background:#fff!important}@media(max-width:380px){.cp-tools .cp-add-inline{width:28px!important;height:28px!important;min-width:28px!important;flex-basis:28px!important}.cp-tools .cp-add-inline svg{width:15px!important;height:15px!important}}</style><style id="contact-final-polish">
+</style><style id="contacts-view-guard">body[data-bottom-view="contacts"] #summarySection,body[data-bottom-view="contacts"] #operationsSection{display:none!important}body[data-bottom-view="contacts"] #list{display:block!important}</style><style id="final-contact-add-polish">.cp-tools .cp-add-inline{width:30px!important;height:30px!important;min-width:30px!important;flex:0 0 30px!important;padding:0!important;margin:0!important;border-radius:8px!important;position:relative!important}
+#list .cp-tools #refreshContacts.cp-tool-icon{width:30px!important;height:30px!important;min-width:30px!important;padding:0!important;border-radius:8px!important;color:#15803d!important;background:#f0fdf4!important;border-color:#bbf7d0!important}#list .cp-tools #refreshContacts.cp-tool-icon svg{width:17px!important;height:17px!important}.cp-tools .cp-add-inline svg{width:16px!important;height:16px!important}.cp-tools .cp-add-inline b{position:absolute!important;right:-2px!important;bottom:-2px!important;font-size:10px!important;line-height:11px!important;min-width:11px!important;height:11px!important;border-radius:50%!important;background:#fff!important}@media(max-width:380px){.cp-tools .cp-add-inline{width:28px!important;height:28px!important;min-width:28px!important;flex-basis:28px!important}.cp-tools .cp-add-inline svg{width:15px!important;height:15px!important}}</style><style id="contact-final-polish">
 .cp-tools .cp-add-inline{width:30px!important;height:30px!important;min-width:30px!important;flex:0 0 30px!important;padding:0!important;margin:0!important;border-radius:8px!important;position:relative!important}
+#list .cp-tools #refreshContacts.cp-tool-icon{width:30px!important;height:30px!important;min-width:30px!important;padding:0!important;border-radius:8px!important;color:#15803d!important;background:#f0fdf4!important;border-color:#bbf7d0!important}#list .cp-tools #refreshContacts.cp-tool-icon svg{width:17px!important;height:17px!important}
 .cp-tools .cp-add-inline svg{width:16px!important;height:16px!important}
 .cp-tools .cp-add-inline b{position:absolute!important;right:-2px!important;bottom:-2px!important;font-size:10px!important;line-height:11px!important;min-width:11px!important;height:11px!important;border-radius:50%!important;background:#fff!important}
 @media(max-width:380px){.cp-tools .cp-add-inline{width:28px!important;height:28px!important;min-width:28px!important;flex-basis:28px!important}.cp-tools .cp-add-inline svg{width:15px!important;height:15px!important}}
@@ -755,29 +753,8 @@ body[data-bottom-view="archive"] #listHead h2::after{content:' روزانه';}
   border-radius:50%!important;background:#fff!important;color:#2563eb!important;
 }
 </style>
-
-<style id="app-intro-style">
-#appIntro{position:fixed;inset:0;z-index:120000;background:linear-gradient(145deg,#eef5ff 0%,#f7f9fc 58%,#eaf7f2 100%);display:flex;align-items:center;justify-content:center;padding:20px;opacity:1;visibility:visible;transition:opacity .45s ease,visibility .45s ease}
-#appIntro.hide{opacity:0;visibility:hidden;pointer-events:none}
-.intro-card{text-align:center;width:min(100%,430px);padding:30px 20px}
-.intro-logo{width:112px;height:112px;object-fit:contain;background:#fff;border:1px solid #dce7f2;border-radius:30px;padding:10px;box-shadow:0 16px 40px rgba(23,59,103,.13);display:block;margin:0 auto 18px}
-.intro-title{font-size:27px;font-weight:900;color:#123b69;line-height:1.35}
-.intro-sub{font-size:12px;color:#52677e;margin-top:7px;line-height:1.9}
-.intro-loading{display:flex;justify-content:center;gap:5px;margin-top:22px}
-.intro-loading span{width:6px;height:6px;border-radius:50%;background:#1769aa;animation:introDot 1s infinite ease-in-out}
-.intro-loading span:nth-child(2){animation-delay:.15s}.intro-loading span:nth-child(3){animation-delay:.3s}
-@keyframes introDot{0%,70%,100%{transform:scale(.7);opacity:.35}35%{transform:scale(1);opacity:1}}
-</style>
 </head>
-<body><div id="appIntro" aria-label="صفحه آغازین برنامه">
-  <div class="intro-card">
-    <img src="./icon-192.png" alt="آیکن مرسولات پستی" class="intro-logo">
-    <div class="intro-title">مرسولات پستی</div>
-    <div class="intro-sub">سامانه ثبت، تحویل و بایگانی مرسولات پستی</div>
-    <div class="intro-loading"><span></span><span></span><span></span></div>
-  </div>
-</div>
-<div id="userLoginGate" aria-modal="true" role="dialog">
+<body><div id="userLoginGate" aria-modal="true" role="dialog">
   <div class="login-card">
     <img class="login-logo" src="./icon-192.png" alt="نشان برنامه" onerror="this.style.display='none'">
     <h2 class="login-title">ورود به برنامه</h2>
@@ -843,15 +820,14 @@ function upsertDeliveryContact(name,phone){
   if(!ph || ph.replace(/\D/g,'').length<8) return false;
   const existing=contacts.find(c=>normPhone(c.phone)===ph);
   if(existing){
-    if(n && !String(existing.name||'').trim()) existing.name=n;
-    if(!existing.phone) existing.phone=ph;
-    return false;
+    let changed=false;
+    if(n && !String(existing.name||'').trim()){ existing.name=n; changed=true; }
+    if(!existing.phone){ existing.phone=ph; changed=true; }
+    return changed;
   }
   contacts.unshift({
     id:crypto.randomUUID?crypto.randomUUID():String(Date.now()+Math.random()),
-    name:n||'بدون نام',
-    phone:ph,
-    createdAt:nowIso()
+    name:n||'بدون نام', phone:ph, createdAt:nowIso(), updatedAt:nowIso()
   });
   return true;
 }
@@ -873,6 +849,42 @@ function syncContacts(){
     localStorage.setItem(CONTACTS,JSON.stringify(contacts));
   }
 }
+function normalizeContacts(list){
+  const m=new Map();
+  (list||[]).forEach(c=>{
+    if(!c) return; const phone=normPhone(c.phone); if(!phone) return;
+    const id=String(c.id||phone), x={...c,id,phone};
+    const key=phone.replace(/\D/g,''); const prev=m.get(key);
+    if(!prev || (!String(prev.name||'').trim() && String(x.name||'').trim())) m.set(key,x);
+  });
+  return [...m.values()];
+}
+function contactDeviceId(){let id=localStorage.getItem('contacts_device_id');if(!id){id='C-'+Date.now()+'-'+Math.random().toString(36).slice(2,8);localStorage.setItem('contacts_device_id',id)}return id}
+function contactsPayload(){return JSON.stringify({action:'saveContacts',version:1,device:contactDeviceId(),contacts:normalizeContacts(contacts)});}
+async function postContactsServer(){
+  if(contactsSaveBusy){contactsSaveQueued=true;return;}
+  contactsSaveBusy=true;
+  const payload=contactsPayload();
+  try{
+    await fetch(CONTACTS_API,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=UTF-8'},body:payload,keepalive:true});
+  }catch(e){try{if(navigator.sendBeacon)navigator.sendBeacon(CONTACTS_API,new Blob([payload],{type:'text/plain;charset=UTF-8'}));}catch(_){} }
+  contactsSaveBusy=false;
+  if(contactsSaveQueued){contactsSaveQueued=false;setTimeout(postContactsServer,50);}
+}
+function queueContactsServerSave(){
+  clearTimeout(contactsSaveTimer);
+  contactsSaveTimer=setTimeout(()=>postContactsServer(),120);
+}
+function pullContactsFromServer(showToast=true){
+  const cb='__contactsSync_'+Date.now()+'_'+Math.floor(Math.random()*100000);
+  const script=document.createElement('script'); let done=false;
+  const finish=()=>{if(done)return;done=true;script.remove();try{delete window[cb]}catch(e){window[cb]=undefined}};
+  window[cb]=function(data){try{if(!data||data.ok!==true)throw new Error('bad');const remote=normalizeContacts(data.contacts||[]);const before=JSON.stringify(contacts);contacts=normalizeContacts(remote.length?remote:contacts);localStorage.setItem(CONTACTS,JSON.stringify(contacts));if(window.bottomView==='contacts')renderContacts();if(showToast)toast(before!==JSON.stringify(contacts)?'مخاطبین از سرور به‌روزرسانی شد. ✓':'مخاطبین به‌روز هستند. ✓');}catch(e){if(showToast)toast('دریافت مخاطبین از سرور انجام نشد.')}finally{finish()}};
+  script.onerror=()=>{finish();if(showToast)toast('ارتباط با سرور مخاطبین برقرار نشد.');};
+  script.src=CONTACTS_API+'?action=pullContacts&callback='+encodeURIComponent(cb)+'&version=1&_='+Date.now();
+  document.body.appendChild(script);
+}
+
 const pickupText=()=>`سلام، وقت بخیر 🌷\nبسته پستی شما رسید.\nلطفاً برای دریافت بسته خود به دفتر پیشخوان چمن سلطان مراجعه فرمایید.\n📞 ۰۶۶۴۳۳۶۵۱۲۷\nبا تشکر`;
 function openSms(c){if(!c)return;const phone=normPhone(c.phone);const body=pickupText();location.href=`sms:${phone}?body=${encodeURIComponent(body)}`;}
 
@@ -915,8 +927,9 @@ function deleteContact(id){
   if(!confirm(`مخاطب «${c.name||'بدون نام'}» حذف شود؟`))return;
   contacts=contacts.filter(x=>String(x.id)!==String(id));
   localStorage.setItem(CONTACTS,JSON.stringify(contacts));
+  queueContactsServerSave();
   renderContacts();
-  toast('مخاطب حذف شد.');
+  toast('مخاطب حذف شد و حذف آن در سرور ثبت می‌شود.');
 }
 
 function contactIcon(k){
@@ -928,7 +941,8 @@ function contactIcon(k){
     edit:`<svg viewBox="0 0 24 24" ${s}><path d="m4 16.5-.8 3.8 3.8-.8L18.7 7.8a2.1 2.1 0 0 0-3-3L4 16.5Z"/><path d="m14 6 4 4"/></svg>`,
     sms:`<svg viewBox="0 0 24 24" ${s}><path d="M4 5.5h16v11H8l-4 3v-14Z"/><path d="M7.5 9h9M7.5 12h6"/></svg>`,
     call:`<svg viewBox="0 0 24 24" ${s}><path d="M7.2 4.5 9.5 3l2 4-2 1.5c1 2 2.2 3.2 4.2 4.2l1.5-2 4 2-1.5 2.3c-.7 1-1.7 1.5-2.8 1.3C9.6 15.4 6.6 12.4 5.2 7.1c-.3-1.1.1-2 1.9-2.6Z"/></svg>`,
-    trash:`<svg viewBox="0 0 24 24" ${s}><path d="M5 7h14M9 7V4h6v3M8 10v8M12 10v8M16 10v8M6 7l1 14h10l1-14"/></svg>`
+    trash:`<svg viewBox="0 0 24 24" ${s}><path d="M5 7h14M9 7V4h6v3M8 10v8M12 10v8M16 10v8M6 7l1 14h10l1-14"/></svg>`,
+    refresh:`<svg viewBox="0 0 24 24" ${s}><path d="M20 11a8 8 0 0 0-14.7-4L4 9"/><path d="M4 5v4h4"/><path d="M4 13a8 8 0 0 0 14.7 4L20 15"/><path d="M20 19v-4h-4"/></svg>`
   }; return m[k]||'';
 }
 function renderContacts(){
@@ -944,6 +958,7 @@ function renderContacts(){
       <button id="addContactTop" class="cp-tool-icon cp-add-inline" type="button" aria-label="افزودن مخاطب" title="افزودن مخاطب">${contactIcon('user')}<b>+</b></button>
       <button id="sendSelected" class="cp-group" type="button" aria-label="پیام گروهی" title="پیام گروهی">${contactIcon('sms')}</button>
       <button id="shareSelectedContacts" class="cp-tool-icon" type="button" aria-label="اشتراک‌گذاری مخاطبین انتخاب‌شده" title="اشتراک‌گذاری">${contactIcon('share')}</button>
+      <button id="refreshContacts" class="cp-tool-icon" type="button" aria-label="به‌روزرسانی مخاطبین از سرور" title="به‌روزرسانی از سرور">${contactIcon('refresh')}</button>
     </div>
     <div class="cp-list">${a.length?a.map(c=>`<article class="cp-card"><div class="cp-main"><input class="contact-check" type="checkbox" value="${esc(c.id)}" aria-label="انتخاب ${esc(c.name||'مخاطب')}"><div class="cp-avatar">${contactIcon('user')}</div><div class="cp-info"><strong>${esc(c.name||'بدون نام')}</strong><span>${esc(c.phone||'بدون شماره')}</span></div></div><div class="cp-actions"><button class="cp-act edit" data-edit-contact="${esc(c.id)}" type="button" title="ویرایش">${contactIcon('edit')}</button><button class="cp-act sms" data-sms-contact="${esc(c.id)}" type="button" title="پیام">${contactIcon('sms')}</button><button class="cp-act call" data-call-contact="${esc(c.id)}" type="button" title="تماس">${contactIcon('call')}</button><button class="cp-act del" data-delete-contact="${esc(c.id)}" type="button" title="حذف">${contactIcon('trash')}</button></div></article>`).join(''):`<div class="cp-empty">${contactIcon('user')}<strong>هنوز مخاطبی ثبت نشده است</strong><span>برای افزودن اولین مخاطب، آیکن آدمک + را بزنید.</span></div>`}</div>
   </section>`;
@@ -974,7 +989,7 @@ function faTime(d){try{return new Intl.DateTimeFormat('fa-IR',{hour:'2-digit',mi
 function nowIso(){return new Date().toISOString()}
 function updateProfile(){$('#officeName').textContent=profile.office||'دفتر پستی';$('#cityName').textContent=profile.city||'ثبت نشده';$('#managerName').textContent=profile.manager||'ثبت نشده'}
 function counts(){const today=localDateKey(new Date());const active=parcels.filter(x=>!x.deleted);const all=active.filter(x=>!x.delivered||archiveKey(x.deliveredAt)===today).length;const wait=active.filter(x=>!x.delivered).length;const done=active.filter(x=>x.delivered&&archiveKey(x.deliveredAt)===today).length;$('#allCount').textContent=all;$('#waitCount').textContent=wait;$('#doneCount').textContent=done}
-function visible(){const q=$('#search').value.trim().toLowerCase();const today=localDateKey(new Date());return parcels.filter(p=>{if(p.deleted)return false;const deliveredToday=!!p.delivered&&archiveKey(p.deliveredAt)===today;const ok=filter==='all'?(!p.delivered||deliveredToday):(filter==='done'&&p.delivered)||(filter==='waiting'&&!p.delivered);const hay=[p.barcode,p.name,p.address,p.receiver,p.phone].join(' ').toLowerCase();return ok&&(!q||hay.includes(q))}).sort((a,b)=>new Date(b.deliveredAt||b.createdAt||0)-new Date(a.deliveredAt||a.createdAt||0))}
+function visible(){const q=$('#search').value.trim().toLowerCase();const today=localDateKey(new Date());return parcels.filter(p=>{if(p.deleted)return false;const deliveredToday=!!p.delivered&&archiveKey(p.deliveredAt)===today;const ok=filter==='all'?(!p.delivered||deliveredToday):(filter==='done'&&deliveredToday)||(filter==='waiting'&&!p.delivered);const hay=[p.barcode,p.name,p.address,p.receiver,p.phone].join(' ').toLowerCase();return ok&&(!q||hay.includes(q))}).sort((a,b)=>new Date(b.deliveredAt||b.createdAt||0)-new Date(a.deliveredAt||a.createdAt||0))}
 function card(p){const done=!!p.delivered; const name=p.name||'نام گیرنده ثبت نشده'; const media=done?`<div class="proofs"><div class="proof"><div class="proof-title">📷 تصویر تحویل</div>${p.photo?`<img class="proof-img" src="${p.photo}" alt="تصویر تحویل مرسوله">`:`<div class="proof-empty">ثبت نشده</div>`}</div><div class="proof"><div class="proof-title">✍️ امضا</div>${p.signature?`<img class="proof-img signature-img" src="${p.signature}" alt="امضای تحویل‌گیرنده">`:`<div class="proof-empty">ثبت نشده</div>`}</div></div>`:''; const details=done?`<div class="details"><div class="detail"><div class="detail-label">تحویل‌گیرنده</div><div class="detail-value">${esc(p.receiver||'ثبت نشده')}</div></div><div class="detail"><div class="detail-label">تاریخ تحویل</div><div class="detail-value">${faDate(p.deliveredAt)}</div></div><div class="detail"><div class="detail-label">ساعت</div><div class="detail-value">${faTime(p.deliveredAt)}</div></div><div class="detail"><div class="detail-label">شماره تماس</div><div class="detail-value">${esc(p.phone||'ثبت نشده')}</div></div></div>${media}<div class="success-note"><span class="check">✓</span><span>مرسوله با موفقیت تحویل داده شد</span></div>`:`<div class="details"><div class="detail"><div class="detail-label">تاریخ دریافت</div><div class="detail-value">${faDate(p.createdAt)}</div></div><div class="detail"><div class="detail-label">وضعیت</div><div class="detail-value">آماده ثبت تحویل</div></div></div>`; return `<article class="parcel ${done?'done':'waiting'}"><div class="phead"><span class="status ${done?'done':'waiting'}">${done?'✓ تحویل‌شده':'◷ در انتظار'}</span><button class="trash" data-delete="${p.id}" title="حذف مرسوله">⌫</button></div><div class="pbody"><div class="personline"><div><div class="personlabel">نام گیرنده</div><div class="personname">${esc(name)}</div></div><div class="address"><div class="personlabel">نشانی</div>${esc(p.address||'بدون نشانی')}</div></div><div class="barcodebox"><div class="barcode-label">▥ شماره بارکد</div><div class="barcode">${esc(p.barcode)}</div></div>${details}<div class="actions-bottom"><button class="pbtn edit" data-edit="${p.id}">✎ ویرایش</button>${done?`<button class="pbtn restore" data-restore="${p.id}">↶ بازگردانی</button>`:`<button class="pbtn deliver" data-deliver="${p.id}">✓ ثبت تحویل</button>`}</div></div></article>`}
 function archiveCard(p){
   const name=p.name||'نام گیرنده ثبت نشده';
@@ -1020,8 +1035,8 @@ function openDelivery(id){deliveryId=id;const p=parcels.find(x=>x.id===id);$('#r
 function renderMultiDelivery(base){const box=$('#multiDeliveryBox'),list=$('#multiDeliveryList');if(!box||!list||!base)return;const matches=parcels.filter(p=>!p.deleted&&!p.delivered);if(matches.length<2){box.style.display='none';list.innerHTML='';$('#multiSelectToggle').style.display='none';return}$('#multiSelectToggle').style.display='inline-flex';box.style.display='none';list.innerHTML=matches.map(p=>`<label class="multi-item"><input type="checkbox" class="multi-delivery-check" value="${esc(p.id)}" ${p.id===base.id?'checked':''}><span class="multi-barcode">${esc(p.barcode)}</span><span class="multi-meta">${esc(p.name||'بدون نام')}</span></label>`).join('');$('#multiSelectedCount').textContent='(۱ انتخاب)'}
 function clearSig(){const c=$('#signatureCanvas'),ctx=c.getContext('2d');ctx.clearRect(0,0,c.width,c.height);signatureDirty=false}
 function setupSignature(){const c=$('#signatureCanvas'),ctx=c.getContext('2d');let drawing=false;function pos(e){const r=c.getBoundingClientRect(),pt=e.touches?e.touches[0]:e;return {x:(pt.clientX-r.left)*c.width/r.width,y:(pt.clientY-r.top)*c.height/r.height}}function start(e){e.preventDefault();drawing=true;const p=pos(e);ctx.beginPath();ctx.moveTo(p.x,p.y)}function move(e){if(!drawing)return;e.preventDefault();const p=pos(e);ctx.lineTo(p.x,p.y);ctx.strokeStyle='#173b67';ctx.lineWidth=5;ctx.lineCap='round';ctx.stroke();signatureDirty=true}function end(){drawing=false}['mousedown','touchstart'].forEach(x=>c.addEventListener(x,start,{passive:false}));['mousemove','touchmove'].forEach(x=>c.addEventListener(x,move,{passive:false}));['mouseup','mouseleave','touchend'].forEach(x=>c.addEventListener(x,end))}
-function saveParcel(){const barcode=$('#barcodeInput').value.replace(/\D/g,'');if(barcode.length<15||barcode.length>23)return toast('بارکد باید بین ۱۵ تا ۲۳ رقم باشد.');const dup=parcels.find(p=>!p.deleted&&p.barcode===barcode&&p.id!==editingId);if(dup)return toast('این بارکد قبلاً ثبت شده است.');const now=nowIso();if(editingId){const p=parcels.find(x=>x.id===editingId);if(!p)return;p.barcode=barcode;p.name=$('#nameInput').value.trim();p.address=$('#addressInput').value.trim();p.deleted=false;p.updatedAt=now}else parcels.push({id:crypto.randomUUID?crypto.randomUUID():String(Date.now()),barcode,name:$('#nameInput').value.trim(),address:$('#addressInput').value.trim(),createdAt:now,updatedAt:now,delivered:false,deleted:false});save();closeModal('parcelModal');render();toast('مرسوله ذخیره شد.')}
-function confirmDelivery(){const p=parcels.find(x=>x.id===deliveryId);const receiver=$('#receiverInput').value.trim(),phone=$('#phoneInput').value.trim();if(!p)return;if(!receiver||!phone)return toast('نام تحویل‌گیرنده و شماره تماس را کامل کنید.');if(!signatureDirty)return toast('لطفاً امضا را ثبت کنید.');let selectedIds=[p.id];$$('.multi-delivery-check:checked').forEach(x=>{if(x.value&&!selectedIds.includes(x.value))selectedIds.push(x.value)});const targets=parcels.filter(x=>selectedIds.includes(x.id)&&!x.deleted&&!x.delivered);if(!targets.length)return toast('مرسوله‌ای برای ثبت تحویل انتخاب نشده است.');const now=nowIso(),signature=$('#signatureCanvas').toDataURL('image/png');const f=$('#photoInput').files[0];const applyDelivery=(photo)=>{targets.forEach(t=>{t.delivered=true;t.receiver=receiver;t.phone=phone;t.deliveredAt=now;t.archiveDate=archiveKey(t.deliveredAt);t.signature=signature;t.updatedAt=now;t.deleted=false;if(photo)t.photo=photo});/* ثبت خودکار مخاطب مستقل از مرسوله */upsertDeliveryContact(receiver,phone);save();finishDelivery(targets.length)};if(f){const r=new FileReader();r.onload=()=>applyDelivery(r.result);r.readAsDataURL(f)}else applyDelivery('')}
+function saveParcel(){const barcode=$('#barcodeInput').value.replace(/\D/g,'');if(barcode.length<15||barcode.length>24)return toast('بارکد باید بین ۱۵ تا ۲۴ رقم باشد.');const dup=parcels.find(p=>!p.deleted&&p.barcode===barcode&&p.id!==editingId);if(dup)return toast('این بارکد قبلاً ثبت شده است.');const now=nowIso();if(editingId){const p=parcels.find(x=>x.id===editingId);if(!p)return;p.barcode=barcode;p.name=$('#nameInput').value.trim();p.address=$('#addressInput').value.trim();p.deleted=false;p.updatedAt=now}else parcels.push({id:crypto.randomUUID?crypto.randomUUID():String(Date.now()),barcode,name:$('#nameInput').value.trim(),address:$('#addressInput').value.trim(),createdAt:now,updatedAt:now,delivered:false,deleted:false});save();closeModal('parcelModal');render();toast('مرسوله ذخیره شد.')}
+function confirmDelivery(){const p=parcels.find(x=>x.id===deliveryId);const receiver=$('#receiverInput').value.trim(),phone=$('#phoneInput').value.trim();if(!p)return;if(!receiver||!phone)return toast('نام تحویل‌گیرنده و شماره تماس را کامل کنید.');if(!signatureDirty)return toast('لطفاً امضا را ثبت کنید.');let selectedIds=[p.id];$$('.multi-delivery-check:checked').forEach(x=>{if(x.value&&!selectedIds.includes(x.value))selectedIds.push(x.value)});const targets=parcels.filter(x=>selectedIds.includes(x.id)&&!x.deleted&&!x.delivered);if(!targets.length)return toast('مرسوله‌ای برای ثبت تحویل انتخاب نشده است.');const now=nowIso(),signature=$('#signatureCanvas').toDataURL('image/png');const f=$('#photoInput').files[0];const applyDelivery=(photo)=>{targets.forEach(t=>{t.delivered=true;t.receiver=receiver;t.phone=phone;t.deliveredAt=now;t.archiveDate=archiveKey(t.deliveredAt);t.signature=signature;t.updatedAt=now;t.deleted=false;if(photo)t.photo=photo});/* ثبت خودکار مخاطب مستقل از مرسوله */if(upsertDeliveryContact(receiver,phone)){localStorage.setItem(CONTACTS,JSON.stringify(contacts));queueContactsServerSave();}save();finishDelivery(targets.length)};if(f){const r=new FileReader();r.onload=()=>applyDelivery(r.result);r.readAsDataURL(f)}else applyDelivery('')}
 function finishDelivery(count=1){refreshArchive();save();closeModal('deliveryModal');filter='done';render();toast(count>1?`${count} مرسوله هم‌زمان تحویل شد؛ یک شماره تماس و یک امضا برای همه ثبت شد.`:'تحویل با تاریخ و ساعت خودکار ثبت شد و در بایگانی روز قرار گرفت.')}
 function backup(){rebuildArchive();const data={version:3,exportedAt:nowIso(),profile,parcels,archiveByDate};const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='پشتیبان-مرسولات-'+new Date().toISOString().slice(0,10)+'.json';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),500);toast('فایل پشتیبان آماده شد.')}
 function restore(file){const r=new FileReader();r.onload=()=>{try{const d=JSON.parse(r.result);if(!Array.isArray(d.parcels))throw 0;let added=0;d.parcels.forEach(x=>{if(x.barcode&&!parcels.some(p=>p.barcode===x.barcode)){parcels.push(x);added++}});if(d.profile)profile={...profile,...d.profile};if(d.archiveByDate&&typeof d.archiveByDate==='object')archiveByDate={...archiveByDate,...d.archiveByDate};rebuildArchive();save();localStorage.setItem(PROFILE,JSON.stringify(profile));updateProfile();render();toast(`${added} مرسوله بازیابی شد؛ اطلاعات قبلی حفظ شد.`)}catch(e){toast('فایل پشتیبان معتبر نیست.')}};r.readAsText(file)}
@@ -1140,6 +1155,8 @@ function applyTheme(n){
 }
 /* ===== Google Sheets multi-device sync - PRO / ROBUST ===== */
 const SYNC_API = "https://script.google.com/macros/s/AKfycbw3gF5e30t6pLIQzA_wF_EEmpouggk_eTn8KbvL0RsMd_qRHdnXOGYxqjZ7ONz6M6v8/exec";
+const CONTACTS_API = localStorage.getItem('contacts_api_url') || SYNC_API;
+let contactsSaveTimer=null, contactsSaveBusy=false, contactsSaveQueued=false;
 const SYNC_VERSION = 7;
 let deletedIds=read('parcel_deleted_ids_v1',[]);
 function saveDeletedIds(){localStorage.setItem('parcel_deleted_ids_v1',JSON.stringify([...new Set((deletedIds||[]).map(String))]))}
@@ -1422,9 +1439,10 @@ window.addEventListener('load',function(){
 (function(){
   document.addEventListener('click',e=>{
     const add=e.target.closest('#addContactTop');if(add){$('#contactTitle').textContent='افزودن مخاطب';$('#contactName').value='';$('#contactPhone').value='';delete $('#saveContact').dataset.edit;openModal('contactModal');return}
+    const ref=e.target.closest('#refreshContacts');if(ref){pullContactsFromServer(true);return;}
     const sms=e.target.closest('[data-sms-contact]');if(sms){const c=contacts.find(x=>String(x.id)===String(sms.dataset.smsContact));openSms(c);return}
     const ed=e.target.closest('[data-edit-contact]');if(ed){editContact(ed.dataset.editContact);return}
-    if(e.target.closest('#saveContact')){const n=$('#contactName').value.trim(),ph=normPhone($('#contactPhone').value),id=$('#saveContact').dataset.edit;if(!n||ph.replace(/\D/g,'').length<8){toast('نام و شماره تماس را کامل وارد کنید.');return}const cleanPh=String(ph).replace(/\D/g,'');const dup=contacts.find(c=>String(normPhone(c.phone)).replace(/\D/g,'')===cleanPh&&String(c.id)!==String(id||''));if(dup){toast('این شماره قبلاً ثبت شده است.');return}if(id){const c=contacts.find(x=>String(x.id)===String(id));if(c){c.name=n;c.phone=ph}}else contacts.unshift({id:crypto.randomUUID?crypto.randomUUID():String(Date.now()+Math.random()),name:n,phone:ph,createdAt:nowIso()});save();closeModal('contactModal');toast(id?'مخاطب ویرایش شد.':'مخاطب ذخیره شد.');if(window.bottomView==='contacts')render();return}
+    if(e.target.closest('#saveContact')){const n=$('#contactName').value.trim(),ph=normPhone($('#contactPhone').value),id=$('#saveContact').dataset.edit;if(!n||ph.replace(/\D/g,'').length<8){toast('نام و شماره تماس را کامل وارد کنید.');return}const cleanPh=String(ph).replace(/\D/g,'');const dup=contacts.find(c=>String(normPhone(c.phone)).replace(/\D/g,'')===cleanPh&&String(c.id)!==String(id||''));if(dup){toast('این شماره قبلاً ثبت شده است.');return}if(id){const c=contacts.find(x=>String(x.id)===String(id));if(c){c.name=n;c.phone=ph;c.updatedAt=nowIso()}}else contacts.unshift({id:crypto.randomUUID?crypto.randomUUID():String(Date.now()+Math.random()),name:n,phone:ph,createdAt:nowIso(),updatedAt:nowIso()});localStorage.setItem(CONTACTS,JSON.stringify(contacts));queueContactsServerSave();closeModal('contactModal');toast(id?'مخاطب ویرایش شد و ذخیره سروری در پس‌زمینه انجام می‌شود.':'مخاطب ذخیره شد و ارسال به سرور در پس‌زمینه انجام می‌شود.');if(window.bottomView==='contacts')render();return}
     if(e.target.closest('#sendSelected')){const ids=$$('.contact-check:checked').map(x=>String(x.value));const selected=ids.map(id=>contacts.find(x=>String(x.id)===id)).filter(Boolean);sendSelectedContacts();return}
   });
   document.addEventListener('change',e=>{if(e.target.matches('#selectContactsAll')){window.selectedContactIds=window.selectedContactIds instanceof Set?window.selectedContactIds:new Set();$$('.contact-check').forEach(x=>{const id=String(x.value);if(e.target.checked)window.selectedContactIds.add(id);else window.selectedContactIds.delete(id);});const c=$('#selectedCount');if(c)c.textContent=`${window.selectedContactIds.size}/${contacts.length}`;}if(e.target.matches('.contact-check')){window.selectedContactIds=window.selectedContactIds instanceof Set?window.selectedContactIds:new Set();const id=String(e.target.value);if(e.target.checked)window.selectedContactIds.add(id);else window.selectedContactIds.delete(id);const c=$('#selectedCount');if(c)c.textContent=`${window.selectedContactIds.size}/${contacts.length}`;}});
@@ -1558,17 +1576,5 @@ function openContactShareBox(){
 </script>
 
 
-
-<script id="app-intro-script">
-(function(){
-  const intro=document.getElementById('appIntro');
-  if(!intro)return;
-  const hide=()=>intro.classList.add('hide');
-  window.addEventListener('load',()=>setTimeout(hide,1200),{once:true});
-  setTimeout(hide,2200);
-})();
-</script>
+<script>if("serviceWorker" in navigator){window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js").catch(()=>{}));}</script>
 </body></html>
-<script>
-if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));}
-</script>
