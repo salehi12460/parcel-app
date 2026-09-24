@@ -819,18 +819,48 @@ function upsertDeliveryContact(name,phone){
   if(!ph || ph.replace(/\D/g,'').length<8) return false;
   const existing=contacts.find(c=>normPhone(c.phone)===ph);
   if(existing){
-    if(n && !String(existing.name||'').trim()) existing.name=n;
-    if(!existing.phone) existing.phone=ph;
-    return false;
+    let changed=false;
+    if(n && !String(existing.name||'').trim()){existing.name=n;changed=true;}
+    if(!existing.phone){existing.phone=ph;changed=true;}
+    if(changed){existing.updatedAt=nowIso();queueContactsServerSave();}
+    return changed;
   }
   contacts.unshift({
     id:crypto.randomUUID?crypto.randomUUID():String(Date.now()+Math.random()),
     name:n||'بدون نام',
     phone:ph,
-    createdAt:nowIso()
+    createdAt:nowIso(),updatedAt:nowIso()
   });
+  queueContactsServerSave();
   return true;
 }
+const CONTACTS_API='https://script.google.com/macros/s/AKfycbw3gF5e30t6pLIQzA_wF_EEmpouggk_eTn8KbvL0RsMd_qRHdnXOGYxqjZ7ONz6M6v8/exec';
+let contactsSyncBusy=false,contactsSyncTimer=null;
+function contactsPayload(){
+  return {action:'saveContacts',version:1,device:localStorage.getItem('parcel_device_id')||'',contacts:(contacts||[]).map(c=>({...c,updatedAt:c.updatedAt||c.createdAt||nowIso()})),deletedContacts:read('parcel_deleted_contacts_v1',[])};
+}
+async function postContactsServer(){
+  if(!navigator.onLine)return false;
+  const payload=JSON.stringify(contactsPayload());
+  try{await fetch(CONTACTS_API,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=UTF-8'},body:payload,keepalive:true});return true;}catch(e){try{return navigator.sendBeacon?navigator.sendBeacon(CONTACTS_API,new Blob([payload],{type:'text/plain;charset=UTF-8'})):false}catch(_){return false}}
+}
+function queueContactsServerSave(){clearTimeout(contactsSyncTimer);contactsSyncTimer=setTimeout(()=>postContactsServer(),180)}
+function mergeServerContacts(remote,deleted){
+  const blocked=new Set((deleted||[]).map(normPhone).filter(Boolean));
+  const localDeleted=new Set(read('parcel_deleted_contacts_v1',[]).map(normPhone).filter(Boolean));
+  const map=new Map();
+  [...(contacts||[]),...(remote||[])].forEach(c=>{const ph=normPhone(c.phone);if(!ph||blocked.has(ph)||localDeleted.has(ph))return;const old=map.get(ph);if(!old||Date.parse(c.updatedAt||c.createdAt||0)>=Date.parse(old.updatedAt||old.createdAt||0))map.set(ph,{...c,phone:ph})});
+  contacts=[...map.values()];localStorage.setItem(CONTACTS,JSON.stringify(contacts));return contacts;
+}
+function pullContactsFromServer(show=true){
+  if(!navigator.onLine){if(show)toast('این گوشی آفلاین است؛ مخاطبین محلی نمایش داده شدند.');return;}
+  const cb='__contactsSync_'+Date.now()+'_'+Math.floor(Math.random()*9999),script=document.createElement('script');let done=false;
+  window[cb]=data=>{if(done)return;done=true;try{if(data?.ok!==true)throw new Error('bad');const blocked=(data.deletedContacts||[]).map(normPhone);const old=contacts.length;mergeServerContacts(data.contacts||[],blocked);renderContacts();if(show)toast(`مخاطبین از سرور به‌روزرسانی شد؛ ${contacts.length} مخاطب فعال.`)}catch(e){if(show)toast('به‌روزرسانی مخاطبین از سرور ناموفق بود.')}finally{script.remove();try{delete window[cb]}catch(_){}}};
+  script.onerror=()=>{if(done)return;done=true;script.remove();try{delete window[cb]}catch(_){}if(show)toast('ارتباط با سرور مخاطبین برقرار نشد.')};
+  script.src=CONTACTS_API+'?action=pullContacts&callback='+encodeURIComponent(cb)+'&_='+Date.now();document.body.appendChild(script);setTimeout(()=>{if(!done){script.onerror() }},10000);
+}
+window.addEventListener('online',()=>{queueContactsServerSave();setTimeout(()=>pullContactsFromServer(false),350)});
+
 /* مخاطبین مستقل از مرسوله‌ها نگهداری می‌شوند؛ حذف مرسوله هرگز مخاطب را حذف نمی‌کند.
    این بخش فقط برای مهاجرت اطلاعات قدیمی، مخاطبین موجود در مرسوله‌ها را یک‌بار/در صورت نبودن اضافه می‌کند. */
 function syncContacts(){
@@ -889,10 +919,12 @@ function deleteContact(id){
   const c=contacts.find(x=>String(x.id)===String(id));
   if(!c)return;
   if(!confirm(`مخاطب «${c.name||'بدون نام'}» حذف شود؟`))return;
+  const removed=contacts.find(x=>String(x.id)===String(id));
   contacts=contacts.filter(x=>String(x.id)!==String(id));
+  const tomb=read('parcel_deleted_contacts_v1',[]); if(removed) tomb.push(normPhone(removed.phone)); localStorage.setItem('parcel_deleted_contacts_v1',JSON.stringify([...new Set(tomb.filter(Boolean))]));
   localStorage.setItem(CONTACTS,JSON.stringify(contacts));
-  renderContacts();
-  toast('مخاطب حذف شد.');
+  renderContacts(); queueContactsServerSave();
+  toast('مخاطب حذف شد و حذف آن برای همه گوشی‌ها ثبت می‌شود.');
 }
 
 function contactIcon(k){
@@ -919,7 +951,7 @@ function renderContacts(){
       <span class="cp-tools-spacer"></span>
       <button id="addContactTop" class="cp-tool-icon cp-add-inline" type="button" aria-label="افزودن مخاطب" title="افزودن مخاطب">${contactIcon('user')}<b>+</b></button>
       <button id="sendSelected" class="cp-group" type="button" aria-label="پیام گروهی" title="پیام گروهی">${contactIcon('sms')}</button>
-      <button id="shareSelectedContacts" class="cp-tool-icon" type="button" aria-label="اشتراک‌گذاری مخاطبین انتخاب‌شده" title="اشتراک‌گذاری">${contactIcon('share')}</button>
+      <button id="shareSelectedContacts" class="cp-tool-icon" type="button" aria-label="اشتراک‌گذاری مخاطبین انتخاب‌شده" title="اشتراک‌گذاری">${contactIcon('share')}</button><button id="refreshContacts" class="cp-tool-icon" type="button" aria-label="به‌روزرسانی مخاطبین از سرور" title="به‌روزرسانی از سرور">↻</button>
     </div>
     <div class="cp-list">${a.length?a.map(c=>`<article class="cp-card"><div class="cp-main"><input class="contact-check" type="checkbox" value="${esc(c.id)}" aria-label="انتخاب ${esc(c.name||'مخاطب')}"><div class="cp-avatar">${contactIcon('user')}</div><div class="cp-info"><strong>${esc(c.name||'بدون نام')}</strong><span>${esc(c.phone||'بدون شماره')}</span></div></div><div class="cp-actions"><button class="cp-act edit" data-edit-contact="${esc(c.id)}" type="button" title="ویرایش">${contactIcon('edit')}</button><button class="cp-act sms" data-sms-contact="${esc(c.id)}" type="button" title="پیام">${contactIcon('sms')}</button><button class="cp-act call" data-call-contact="${esc(c.id)}" type="button" title="تماس">${contactIcon('call')}</button><button class="cp-act del" data-delete-contact="${esc(c.id)}" type="button" title="حذف">${contactIcon('trash')}</button></div></article>`).join(''):`<div class="cp-empty">${contactIcon('user')}<strong>هنوز مخاطبی ثبت نشده است</strong><span>برای افزودن اولین مخاطب، آیکن آدمک + را بزنید.</span></div>`}</div>
   </section>`;
@@ -936,6 +968,7 @@ function renderContacts(){
   });
   $$('.contact-check').forEach(x=>x.addEventListener('change',e=>{const id=String(e.target.value);if(e.target.checked)window.selectedContactIds.add(id);else window.selectedContactIds.delete(id);syncSelected()}));
   syncSelected();
+  $('#refreshContacts')?.addEventListener('click',()=>pullContactsFromServer(true));
 }
 function editContact(id){const c=contacts.find(x=>String(x.id)===String(id));if(!c)return;$('#contactTitle').textContent='ویرایش مخاطب';$('#contactName').value=c.name||'';$('#contactPhone').value=c.phone||'';$('#saveContact').dataset.edit=id;openModal('contactModal')}
 function archiveKey(iso){const d=iso?new Date(iso):new Date();if(Number.isNaN(d.getTime()))return localDateKey(new Date());return localDateKey(d)}
@@ -949,7 +982,7 @@ function faDate(d){try{return new Intl.DateTimeFormat('fa-IR',{year:'numeric',mo
 function faTime(d){try{return new Intl.DateTimeFormat('fa-IR',{hour:'2-digit',minute:'2-digit'}).format(new Date(d))}catch(e){return ''}}
 function nowIso(){return new Date().toISOString()}
 function updateProfile(){$('#officeName').textContent=profile.office||'دفتر پستی';$('#cityName').textContent=profile.city||'ثبت نشده';$('#managerName').textContent=profile.manager||'ثبت نشده'}
-function counts(){const today=localDateKey(new Date());const active=parcels.filter(x=>!x.deleted);const all=active.filter(x=>!x.delivered||archiveKey(x.deliveredAt)===today).length;const wait=active.filter(x=>!x.delivered).length;const done=active.filter(x=>x.delivered&&archiveKey(x.deliveredAt)===today).length;$('#allCount').textContent=all;$('#waitCount').textContent=wait;$('#doneCount').textContent=done}
+function counts(){const today=localDateKey(new Date());const active=parcels.filter(x=>!x.deleted);const wait=active.filter(x=>!x.delivered).length;const done=active.filter(x=>x.delivered&&archiveKey(x.deliveredAt)===today).length;const all=wait+done;$('#allCount').textContent=all;$('#waitCount').textContent=wait;$('#doneCount').textContent=done}
 function visible(){const q=$('#search').value.trim().toLowerCase();const today=localDateKey(new Date());return parcels.filter(p=>{if(p.deleted)return false;const deliveredToday=!!p.delivered&&archiveKey(p.deliveredAt)===today;const ok=filter==='all'?(!p.delivered||deliveredToday):(filter==='done'&&p.delivered)||(filter==='waiting'&&!p.delivered);const hay=[p.barcode,p.name,p.address,p.receiver,p.phone].join(' ').toLowerCase();return ok&&(!q||hay.includes(q))}).sort((a,b)=>new Date(b.deliveredAt||b.createdAt||0)-new Date(a.deliveredAt||a.createdAt||0))}
 function card(p){const done=!!p.delivered; const name=p.name||'نام گیرنده ثبت نشده'; const media=done?`<div class="proofs"><div class="proof"><div class="proof-title">📷 تصویر تحویل</div>${p.photo?`<img class="proof-img" src="${p.photo}" alt="تصویر تحویل مرسوله">`:`<div class="proof-empty">ثبت نشده</div>`}</div><div class="proof"><div class="proof-title">✍️ امضا</div>${p.signature?`<img class="proof-img signature-img" src="${p.signature}" alt="امضای تحویل‌گیرنده">`:`<div class="proof-empty">ثبت نشده</div>`}</div></div>`:''; const details=done?`<div class="details"><div class="detail"><div class="detail-label">تحویل‌گیرنده</div><div class="detail-value">${esc(p.receiver||'ثبت نشده')}</div></div><div class="detail"><div class="detail-label">تاریخ تحویل</div><div class="detail-value">${faDate(p.deliveredAt)}</div></div><div class="detail"><div class="detail-label">ساعت</div><div class="detail-value">${faTime(p.deliveredAt)}</div></div><div class="detail"><div class="detail-label">شماره تماس</div><div class="detail-value">${esc(p.phone||'ثبت نشده')}</div></div></div>${media}<div class="success-note"><span class="check">✓</span><span>مرسوله با موفقیت تحویل داده شد</span></div>`:`<div class="details"><div class="detail"><div class="detail-label">تاریخ دریافت</div><div class="detail-value">${faDate(p.createdAt)}</div></div><div class="detail"><div class="detail-label">وضعیت</div><div class="detail-value">آماده ثبت تحویل</div></div></div>`; return `<article class="parcel ${done?'done':'waiting'}"><div class="phead"><span class="status ${done?'done':'waiting'}">${done?'✓ تحویل‌شده':'◷ در انتظار'}</span><button class="trash" data-delete="${p.id}" title="حذف مرسوله">⌫</button></div><div class="pbody"><div class="personline"><div><div class="personlabel">نام گیرنده</div><div class="personname">${esc(name)}</div></div><div class="address"><div class="personlabel">نشانی</div>${esc(p.address||'بدون نشانی')}</div></div><div class="barcodebox"><div class="barcode-label">▥ شماره بارکد</div><div class="barcode">${esc(p.barcode)}</div></div>${details}<div class="actions-bottom"><button class="pbtn edit" data-edit="${p.id}">✎ ویرایش</button>${done?`<button class="pbtn restore" data-restore="${p.id}">↶ بازگردانی</button>`:`<button class="pbtn deliver" data-deliver="${p.id}">✓ ثبت تحویل</button>`}</div></div></article>`}
 function archiveCard(p){
@@ -968,8 +1001,8 @@ function render(){
     const q=$('#search').value.trim().toLowerCase();
     shown=parcels.filter(p=>{if(p.deleted)return false;const hay=[p.barcode,p.name,p.address,p.receiver,p.phone].join(' ').toLowerCase();return !q||hay.includes(q)}).sort((a,b)=>new Date(b.deliveredAt||b.createdAt||0)-new Date(a.deliveredAt||a.createdAt||0));
   }
-  if(view==='delivered') shown=parcels.filter(p=>!p.deleted&&p.delivered).sort((a,b)=>new Date(b.deliveredAt||0)-new Date(a.deliveredAt||0));
-  if(view==='archive') shown=arr.filter(p=>p.delivered);
+  if(view==='delivered'){const today=localDateKey(new Date());shown=parcels.filter(p=>!p.deleted&&p.delivered&&archiveKey(p.deliveredAt)===today).sort((a,b)=>new Date(b.deliveredAt||0)-new Date(a.deliveredAt||0));}
+  if(view==='archive'){const q=$('#search').value.trim().toLowerCase();shown=parcels.filter(p=>{if(p.deleted||!p.delivered)return false;const hay=[p.barcode,p.name,p.address,p.receiver,p.phone].join(' ').toLowerCase();return !q||hay.includes(q)}).sort((a,b)=>new Date(b.deliveredAt||0)-new Date(a.deliveredAt||0));}
   $('#listTitle').textContent=view==='all'?'کل مرسولات':view==='waiting'?'مرسولات در انتظار':view==='delivered'?'مرسوله‌های تحویل‌شده':view==='archive'?'بایگانی روزانه':'همه مرسولات';
   let html='';
   if(view==='archive'){
@@ -1372,6 +1405,7 @@ window.addEventListener('load',function(){
   setTimeout(function(){
     addSyncUI();
     syncPull(false,false,0);
+    pullContactsFromServer(false);
   },250);
 });
 
