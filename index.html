@@ -7,6 +7,7 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="مرسولات پستی">
+<meta name="app-version" content="9">
 <link rel="manifest" href="./manifest.json">
 <link rel="icon" href="./favicon.png" type="image/png">
 <title>مرسولات پستی</title>
@@ -846,11 +847,27 @@ async function postContactsServer(){
 }
 function queueContactsServerSave(){clearTimeout(contactsSyncTimer);contactsSyncTimer=setTimeout(()=>postContactsServer(),180)}
 function mergeServerContacts(remote,deleted){
-  const blocked=new Set((deleted||[]).map(normPhone).filter(Boolean));
-  const localDeleted=new Set(read('parcel_deleted_contacts_v1',[]).map(normPhone).filter(Boolean));
+  const blocked=[...(deleted||[])].map(normPhone).filter(Boolean);
+  const blockedSet=new Set(blocked);
+  const localDeleted=[...read('parcel_deleted_contacts_v1',[])].map(normPhone).filter(Boolean);
+  const localDeletedSet=new Set(localDeleted);
+  // حذف‌هایی که از سرور آمده‌اند باید روی همین گوشی هم اعمال شوند؛
+  // در غیر این صورت مخاطب حذف‌شده محلی با «به‌روزرسانی» دوباره دیده می‌شد.
+  if(blocked.length){
+    const mergedDeleted=[...new Set([...localDeleted,...blocked])].slice(-5000);
+    localStorage.setItem('parcel_deleted_contacts_v1',JSON.stringify(mergedDeleted));
+  }
   const map=new Map();
-  [...(contacts||[]),...(remote||[])].forEach(c=>{const ph=normPhone(c.phone);if(!ph||blocked.has(ph)||localDeleted.has(ph))return;const old=map.get(ph);if(!old||Date.parse(c.updatedAt||c.createdAt||0)>=Date.parse(old.updatedAt||old.createdAt||0))map.set(ph,{...c,phone:ph})});
-  contacts=[...map.values()];localStorage.setItem(CONTACTS,JSON.stringify(contacts));return contacts;
+  [...(contacts||[]),...(remote||[])].forEach(c=>{
+    const ph=normPhone(c.phone);
+    if(!ph||blockedSet.has(ph)||localDeletedSet.has(ph))return;
+    const old=map.get(ph);
+    if(!old||Date.parse(c.updatedAt||c.createdAt||0)>=Date.parse(old.updatedAt||old.createdAt||0))
+      map.set(ph,{...c,phone:ph});
+  });
+  contacts=[...map.values()];
+  localStorage.setItem(CONTACTS,JSON.stringify(contacts));
+  return contacts;
 }
 function pullContactsFromServer(show=true){
   if(!navigator.onLine){if(show)toast('این گوشی آفلاین است؛ مخاطبین محلی نمایش داده شدند.');return;}
@@ -1437,7 +1454,7 @@ window.addEventListener('load',function(){
     const add=e.target.closest('#addContactTop');if(add){$('#contactTitle').textContent='افزودن مخاطب';$('#contactName').value='';$('#contactPhone').value='';delete $('#saveContact').dataset.edit;openModal('contactModal');return}
     const sms=e.target.closest('[data-sms-contact]');if(sms){const c=contacts.find(x=>String(x.id)===String(sms.dataset.smsContact));openSms(c);return}
     const ed=e.target.closest('[data-edit-contact]');if(ed){editContact(ed.dataset.editContact);return}
-    if(e.target.closest('#saveContact')){const n=$('#contactName').value.trim(),ph=normPhone($('#contactPhone').value),id=$('#saveContact').dataset.edit;if(!n||ph.replace(/\D/g,'').length<8){toast('نام و شماره تماس را کامل وارد کنید.');return}const cleanPh=String(ph).replace(/\D/g,'');const dup=contacts.find(c=>String(normPhone(c.phone)).replace(/\D/g,'')===cleanPh&&String(c.id)!==String(id||''));if(dup){toast('این شماره قبلاً ثبت شده است.');return}if(id){const c=contacts.find(x=>String(x.id)===String(id));if(c){c.name=n;c.phone=ph}}else contacts.unshift({id:crypto.randomUUID?crypto.randomUUID():String(Date.now()+Math.random()),name:n,phone:ph,createdAt:nowIso()});save();closeModal('contactModal');toast(id?'مخاطب ویرایش شد.':'مخاطب ذخیره شد.');if(window.bottomView==='contacts')render();return}
+    if(e.target.closest('#saveContact')){const n=$('#contactName').value.trim(),ph=normPhone($('#contactPhone').value),id=$('#saveContact').dataset.edit;if(!n||ph.replace(/\D/g,'').length<8){toast('نام و شماره تماس را کامل وارد کنید.');return}const cleanPh=String(ph).replace(/\D/g,'');const dup=contacts.find(c=>String(normPhone(c.phone)).replace(/\D/g,'')===cleanPh&&String(c.id)!==String(id||''));if(dup){toast('این شماره قبلاً ثبت شده است.');return}if(id){const c=contacts.find(x=>String(x.id)===String(id));if(c){c.name=n;c.phone=ph;c.updatedAt=nowIso()}}else contacts.unshift({id:crypto.randomUUID?crypto.randomUUID():String(Date.now()+Math.random()),name:n,phone:ph,createdAt:nowIso(),updatedAt:nowIso()});save();queueContactsServerSave();closeModal('contactModal');toast(id?'مخاطب ویرایش شد.':'مخاطب ذخیره شد.');if(window.bottomView==='contacts')render();return}
     if(e.target.closest('#sendSelected')){const ids=$$('.contact-check:checked').map(x=>String(x.value));const selected=ids.map(id=>contacts.find(x=>String(x.id)===id)).filter(Boolean);sendSelectedContacts();return}
   });
   document.addEventListener('change',e=>{if(e.target.matches('#selectContactsAll')){window.selectedContactIds=window.selectedContactIds instanceof Set?window.selectedContactIds:new Set();$$('.contact-check').forEach(x=>{const id=String(x.value);if(e.target.checked)window.selectedContactIds.add(id);else window.selectedContactIds.delete(id);});const c=$('#selectedCount');if(c)c.textContent=`${window.selectedContactIds.size}/${contacts.length}`;}if(e.target.matches('.contact-check')){window.selectedContactIds=window.selectedContactIds instanceof Set?window.selectedContactIds:new Set();const id=String(e.target.value);if(e.target.checked)window.selectedContactIds.add(id);else window.selectedContactIds.delete(id);const c=$('#selectedCount');if(c)c.textContent=`${window.selectedContactIds.size}/${contacts.length}`;}});
