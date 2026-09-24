@@ -3,12 +3,13 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#f6f8fc">
-<link rel="manifest" href="./manifest.json">
-<link rel="icon" href="./favicon.png" type="image/png">
+<meta name="theme-color" content="#1769aa">
+<meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="مرسولات پستی">
-<title>سامانه مدیریت مرسولات</title>
+<link rel="manifest" href="./manifest.json">
+<link rel="icon" href="./favicon.png" type="image/png">
+<title>مرسولات پستی</title>
 <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@zxing/browser@0.2.1/umd/zxing-browser.min.js"></script>
 <style>
@@ -364,6 +365,7 @@ body{padding-bottom:82px!important}
 body[data-bottom-view="home"] #listHead,body[data-bottom-view="home"] #listToolbar,body[data-bottom-view="home"] #list{display:none!important}
 body:not([data-bottom-view="home"]) #dashboardHero,body:not([data-bottom-view="home"]) #operationsHead,body:not([data-bottom-view="home"]) #operationsSection,body:not([data-bottom-view="home"]) #summaryHead,body:not([data-bottom-view="home"]) #summarySection{display:none!important}
 body[data-bottom-view="archive"] #listToolbar{display:none!important}body[data-bottom-view="contacts"] #listToolbar{display:block!important}body[data-bottom-view="contacts"] .filterbar{display:none!important;display:none!important}
+body[data-bottom-view="archive"] #listHead h2::after{content:' روزانه';}
 @media(max-width:520px){.bottom-nav{left:6px;right:6px;bottom:6px;gap:2px;padding:6px 4px;border-radius:18px}.bottom-item{min-height:55px;font-size:8px}.bottom-item .bottom-icon{width:25px;height:25px;font-size:15px}}
 @media(min-width:700px){.bottom-nav{max-width:760px;margin:auto;left:0;right:0}}
 
@@ -699,10 +701,8 @@ body[data-bottom-view="archive"] #listToolbar{display:none!important}body[data-b
 
 <style id="contacts-pro-design">
 .contacts-pro{padding:7px 0 88px;color:#17324d}.cp-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:18px 16px;border-radius:24px;background:linear-gradient(135deg,#0f6fae 0%,#2563eb 65%,#3b82f6 100%);color:#fff;box-shadow:0 10px 25px rgba(37,99,235,.18)}.cp-eyebrow{font-size:9px;font-weight:800;opacity:.8}.cp-head h2{margin:3px 0;font-size:24px;font-weight:900}.cp-head-copy span{font-size:10px;opacity:.88}.cp-head-actions{display:flex;gap:7px}.cp-head-btn{position:relative;width:45px;height:45px;border:1px solid rgba(255,255,255,.22);border-radius:14px;background:rgba(255,255,255,.16);color:#fff;display:flex;align-items:center;justify-content:center}.cp-head-btn svg{width:24px;height:24px}.cp-add b{position:absolute;right:3px;bottom:1px;font-size:15px}.cp-search{height:48px;margin-top:10px;display:flex;align-items:center;gap:9px;background:#fff;border:1px solid #e2eaf2;border-radius:17px;padding:0 12px;box-shadow:0 5px 15px rgba(20,50,80,.05)}.cp-search svg{width:21px;height:21px;color:#64748b}.cp-search input{flex:1;border:0!important;outline:0!important;background:transparent!important;font-size:12px!important;color:#17324d}.cp-tools{margin-top:10px;padding:8px 10px;background:#fff;border:1px solid #e2eaf2;border-radius:16px;display:flex;align-items:center;gap:9px;font-size:10px;position:sticky;top:6px;z-index:5;box-shadow:0 4px 12px rgba(20,50,80,.04)}.cp-select{display:flex;align-items:center;gap:6px;font-weight:800}.cp-select input{accent-color:#2563eb}.cp-tools>#selectedCount{min-width:42px;text-align:center;color:#17324d;font-weight:900;direction:ltr}.cp-tool-icon{position:relative;width:34px;height:32px;border:1px solid #dbe5ef;border-radius:9px;background:#f8fbff;color:#2563eb;display:flex;align-items:center;justify-content:center;flex:none;padding:0}.cp-tool-icon svg{width:18px;height:18px}.cp-add-inline{margin-left:0}.cp-add-inline b{position:absolute;right:1px;bottom:0;font-size:11px;line-height:1;font-weight:900;background:#fff;border-radius:50%;padding:0 1px}.cp-group{width:36px;height:34px;border:1px solid #dbe5ef;border-radius:10px;padding:0;background:#17324d;color:#fff;display:flex;align-items:center;justify-content:center;flex:none}.cp-group svg{width:20px;height:20px}.cp-tools .cp-tools-spacer{flex:1;min-width:4px}.cp-card{margin-top:9px;background:#fff;border:1px solid #e2eaf2;border-radius:19px;padding:12px;box-shadow:0 4px 15px rgba(20,50,80,.045)}.cp-main{display:flex;align-items:center;gap:9px}.cp-main input{accent-color:#2563eb}.cp-avatar{width:49px;height:49px;min-width:49px;border-radius:15px;background:#eef5ff;color:#2563eb;display:flex;align-items:center;justify-content:center;border:1px solid #d8e7fa}.cp-avatar svg{width:29px;height:29px}.cp-info{min-width:0;display:flex;flex-direction:column;gap:5px}.cp-info strong{font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.cp-info span{font-size:11px;color:#64748b;direction:ltr;text-align:right}.cp-actions{display:flex;justify-content:flex-end;gap:7px;margin-top:11px;padding-top:9px;border-top:1px solid #eef2f6}.cp-act{width:47px;height:40px;border:1px solid;border-radius:12px;background:#fff;display:flex;align-items:center;justify-content:center}.cp-act svg{width:22px;height:22px}.cp-act.edit{color:#2563eb;background:#eff6ff;border-color:#bfdbfe}.cp-act.sms{color:#b45309;background:#fffbeb;border-color:#fde68a}.cp-act.call{color:#15803d;background:#ecfdf5;border-color:#bbf7d0}.cp-act.del{width:39px;color:#dc2626;background:#fef2f2;border-color:#fecaca}.cp-act.del svg{width:19px;height:19px}.cp-empty{text-align:center;margin-top:15px;padding:38px 20px;background:#fff;border:1px dashed #cbd8e5;border-radius:20px}.cp-empty svg{width:42px;height:42px;color:#2563eb}.cp-empty strong{display:block;margin-top:8px}.cp-empty span{display:block;margin-top:5px;font-size:10px;color:#64748b}
-</style><style id="contacts-view-guard">body[data-bottom-view="contacts"] #summarySection,body[data-bottom-view="contacts"] #operationsSection{display:none!important}body[data-bottom-view="contacts"] #list{display:block!important}</style><style id="final-contact-add-polish">.cp-tools .cp-add-inline{width:30px!important;height:30px!important;min-width:30px!important;flex:0 0 30px!important;padding:0!important;margin:0!important;border-radius:8px!important;position:relative!important}
-#list .cp-tools #refreshContacts.cp-tool-icon{width:30px!important;height:30px!important;min-width:30px!important;padding:0!important;border-radius:8px!important;color:#15803d!important;background:#f0fdf4!important;border-color:#bbf7d0!important}#list .cp-tools #refreshContacts.cp-tool-icon svg{width:17px!important;height:17px!important}.cp-tools .cp-add-inline svg{width:16px!important;height:16px!important}.cp-tools .cp-add-inline b{position:absolute!important;right:-2px!important;bottom:-2px!important;font-size:10px!important;line-height:11px!important;min-width:11px!important;height:11px!important;border-radius:50%!important;background:#fff!important}@media(max-width:380px){.cp-tools .cp-add-inline{width:28px!important;height:28px!important;min-width:28px!important;flex-basis:28px!important}.cp-tools .cp-add-inline svg{width:15px!important;height:15px!important}}</style><style id="contact-final-polish">
+</style><style id="contacts-view-guard">body[data-bottom-view="contacts"] #summarySection,body[data-bottom-view="contacts"] #operationsSection{display:none!important}body[data-bottom-view="contacts"] #list{display:block!important}</style><style id="final-contact-add-polish">.cp-tools .cp-add-inline{width:30px!important;height:30px!important;min-width:30px!important;flex:0 0 30px!important;padding:0!important;margin:0!important;border-radius:8px!important;position:relative!important}.cp-tools .cp-add-inline svg{width:16px!important;height:16px!important}.cp-tools .cp-add-inline b{position:absolute!important;right:-2px!important;bottom:-2px!important;font-size:10px!important;line-height:11px!important;min-width:11px!important;height:11px!important;border-radius:50%!important;background:#fff!important}@media(max-width:380px){.cp-tools .cp-add-inline{width:28px!important;height:28px!important;min-width:28px!important;flex-basis:28px!important}.cp-tools .cp-add-inline svg{width:15px!important;height:15px!important}}</style><style id="contact-final-polish">
 .cp-tools .cp-add-inline{width:30px!important;height:30px!important;min-width:30px!important;flex:0 0 30px!important;padding:0!important;margin:0!important;border-radius:8px!important;position:relative!important}
-#list .cp-tools #refreshContacts.cp-tool-icon{width:30px!important;height:30px!important;min-width:30px!important;padding:0!important;border-radius:8px!important;color:#15803d!important;background:#f0fdf4!important;border-color:#bbf7d0!important}#list .cp-tools #refreshContacts.cp-tool-icon svg{width:17px!important;height:17px!important}
 .cp-tools .cp-add-inline svg{width:16px!important;height:16px!important}
 .cp-tools .cp-add-inline b{position:absolute!important;right:-2px!important;bottom:-2px!important;font-size:10px!important;line-height:11px!important;min-width:11px!important;height:11px!important;border-radius:50%!important;background:#fff!important}
 @media(max-width:380px){.cp-tools .cp-add-inline{width:28px!important;height:28px!important;min-width:28px!important;flex-basis:28px!important}.cp-tools .cp-add-inline svg{width:15px!important;height:15px!important}}
@@ -808,25 +808,26 @@ body[data-bottom-view="archive"] #listToolbar{display:none!important}body[data-b
 <div class="modal" id="backupRestoreModal"><div class="sheet"><div class="sheet-head"><h3>پشتیبان‌گیری و بازیابی</h3><button class="close" data-close="backupRestoreModal">×</button></div><p class="hint">برای حفظ اطلاعات، می‌توانید یک فایل پشتیبان از مرسوله‌ها و تنظیمات ذخیره کنید یا فایل قبلی را برگردانید. بازیابی، اطلاعات موجود را حذف نمی‌کند.</p><div class="backup-choice-grid"><button type="button" class="backup-choice" id="backupNowBtn"><span class="backup-choice-ico">⇩</span><strong>پشتیبان‌گیری</strong><small>ذخیره یک فایل امن از اطلاعات فعلی</small></button><button type="button" class="backup-choice" id="restoreNowBtn"><span class="backup-choice-ico restore">⇧</span><strong>بازیابی</strong><small>انتخاب فایل و اضافه‌کردن اطلاعات قبلی</small></button></div><button type="button" class="mainbtn gray" data-close="backupRestoreModal" style="width:100%;margin-top:10px">بستن</button></div></div>
 <div class="toast" id="toast"></div>
 <script>
-const KEY='elygoudarz_parcels_precise_v3'; const PROFILE='elygoudarz_profile_v1'; const ARCHIVE='elygoudarz_archive_by_date_v1'; const CONTACTS='elygoudarz_contacts_v1'; const CONTACT_DELETED='elygoudarz_contacts_deleted_v1';
-window.bottomView='home'; let parcels=read(KEY,[]), profile=read(PROFILE,{office:'اداره پست الیگودرز',city:'چمن سلطان',manager:'صالح کوتاه'}); let archiveByDate=read(ARCHIVE,{}); let contacts=read(CONTACTS,[]); let deletedContacts=read(CONTACT_DELETED,{}); let filter='all', editingId=null, deliveryId=null, signatureDirty=false; let openArchives=new Set();
+const KEY='elygoudarz_parcels_precise_v3'; const PROFILE='elygoudarz_profile_v1'; const ARCHIVE='elygoudarz_archive_by_date_v1'; const CONTACTS='elygoudarz_contacts_v1';
+window.bottomView='home'; let parcels=read(KEY,[]), profile=read(PROFILE,{office:'اداره پست الیگودرز',city:'چمن سلطان',manager:'صالح کوتاه'}); let archiveByDate=read(ARCHIVE,{}); let contacts=read(CONTACTS,[]); let filter='all', editingId=null, deliveryId=null, signatureDirty=false; let openArchives=new Set();
 const $=s=>document.querySelector(s); const $$=s=>[...document.querySelectorAll(s)];
 function read(k,f){try{const x=JSON.parse(localStorage.getItem(k));return x??f}catch(e){return f}}
-function save(){localStorage.setItem(KEY,JSON.stringify(parcels));localStorage.setItem(ARCHIVE,JSON.stringify(archiveByDate));localStorage.setItem(CONTACTS,JSON.stringify(contacts));localStorage.setItem(CONTACT_DELETED,JSON.stringify(deletedContacts))}
+function save(){localStorage.setItem(KEY,JSON.stringify(parcels));localStorage.setItem(ARCHIVE,JSON.stringify(archiveByDate));localStorage.setItem(CONTACTS,JSON.stringify(contacts))}
 function normPhone(v){return String(v||'').replace(/[۰-۹]/g,d=>String('۰۱۲۳۴۵۶۷۸۹'.indexOf(d))).replace(/[^0-9+]/g,'').replace(/^0098/,'+98')}
 function upsertDeliveryContact(name,phone){
   const ph=normPhone(phone), n=String(name||'').trim();
   if(!ph || ph.replace(/\D/g,'').length<8) return false;
-  const clean=ph.replace(/\D/g,''); delete deletedContacts[clean]; const existing=contacts.find(c=>normPhone(c.phone)===ph);
+  const existing=contacts.find(c=>normPhone(c.phone)===ph);
   if(existing){
-    let changed=false;
-    if(n && !String(existing.name||'').trim()){ existing.name=n; changed=true; }
-    if(!existing.phone){ existing.phone=ph; changed=true; }
-    return changed;
+    if(n && !String(existing.name||'').trim()) existing.name=n;
+    if(!existing.phone) existing.phone=ph;
+    return false;
   }
   contacts.unshift({
     id:crypto.randomUUID?crypto.randomUUID():String(Date.now()+Math.random()),
-    name:n||'بدون نام', phone:ph, createdAt:nowIso(), updatedAt:nowIso()
+    name:n||'بدون نام',
+    phone:ph,
+    createdAt:nowIso()
   });
   return true;
 }
@@ -848,78 +849,6 @@ function syncContacts(){
     localStorage.setItem(CONTACTS,JSON.stringify(contacts));
   }
 }
-function normalizeContacts(list){
-  const m=new Map();
-  (list||[]).forEach(c=>{
-    if(!c) return; const phone=normPhone(c.phone); if(!phone) return;
-    const id=String(c.id||phone), x={...c,id,phone,updatedAt:c.updatedAt||c.createdAt||''};
-    const key=phone.replace(/\D/g,''); const prev=m.get(key);
-    if(!prev){m.set(key,x);return;}
-    const pt=Date.parse(prev.updatedAt||'')||0, xt=Date.parse(x.updatedAt||'')||0;
-    const newer=xt>pt?x:(pt>xt?prev:x);
-    if(!String(newer.name||'').trim() && (String(prev.name||'').trim()||String(x.name||'').trim())) newer={...newer,name:String(prev.name||x.name||'')};
-    m.set(key,newer);
-  });
-  return [...m.values()];
-}
-function mergeContactsLists(localList,remoteList){
-  return normalizeContacts([...(localList||[]),...(remoteList||[])]);
-}
-function contactDeviceId(){let id=localStorage.getItem('contacts_device_id');if(!id){id='C-'+Date.now()+'-'+Math.random().toString(36).slice(2,8);localStorage.setItem('contacts_device_id',id)}return id}
-function contactsPayload(){return JSON.stringify({action:'saveContacts',version:1,device:contactDeviceId(),contacts:normalizeContacts(contacts),deletedContacts:deletedContacts});}
-async function postContactsServer(){
-  if(contactsSaveBusy){contactsSaveQueued=true;return;}
-  contactsSaveBusy=true;
-  const payload=contactsPayload();
-  try{
-    await fetch(CONTACTS_API,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=UTF-8'},body:payload,keepalive:true});
-  }catch(e){try{if(navigator.sendBeacon)navigator.sendBeacon(CONTACTS_API,new Blob([payload],{type:'text/plain;charset=UTF-8'}));}catch(_){} }
-  contactsSaveBusy=false;
-  if(contactsSaveQueued){contactsSaveQueued=false;setTimeout(postContactsServer,50);}
-}
-function queueContactsServerSave(){
-  clearTimeout(contactsSaveTimer);
-  contactsSaveTimer=setTimeout(()=>postContactsServer(),120);
-}
-function pullContactsFromServer(showToast=true){
-  const cb='__contactsSync_'+Date.now()+'_'+Math.floor(Math.random()*100000);
-  const script=document.createElement('script'); let done=false;
-  const finish=()=>{if(done)return;done=true;script.remove();try{delete window[cb]}catch(e){window[cb]=undefined}};
-  window[cb]=function(data){try{
-    if(!data||data.ok!==true)throw new Error('bad');
-    const remoteDeleted=data.deletedContacts||{};
-    Object.keys(remoteDeleted).forEach(ph=>{
-      const t=Date.parse(remoteDeleted[ph])||0;
-      const old=Date.parse(deletedContacts[ph]||'')||0;
-      if(t>=old) deletedContacts[ph]=remoteDeleted[ph];
-    });
-    contacts=contacts.filter(c=>{
-      const ph=normPhone(c.phone).replace(/\D/g,'');
-      const dt=Date.parse(deletedContacts[ph]||'')||0;
-      const ct=Date.parse(c.updatedAt||c.createdAt||'')||0;
-      return !(dt && dt>=ct);
-    });
-    const remote=normalizeContacts(data.contacts||[]).filter(c=>{
-      const ph=normPhone(c.phone).replace(/\D/g,'');
-      const dt=Date.parse(deletedContacts[ph]||'')||0;
-      const ct=Date.parse(c.updatedAt||c.createdAt||'')||0;
-      return !(dt && dt>=ct);
-    });
-    const before=JSON.stringify(normalizeContacts(contacts));
-    contacts=mergeContactsLists(contacts,remote);
-    localStorage.setItem(CONTACTS,JSON.stringify(contacts));
-    localStorage.setItem(CONTACT_DELETED,JSON.stringify(deletedContacts));
-    const changed=before!==JSON.stringify(normalizeContacts(contacts));
-    if(changed)queueContactsServerSave();
-    if(window.bottomView==='contacts')renderContacts();
-    if(showToast)toast(changed?'مخاطبین با سرور ادغام و به‌روزرسانی شد. ✓':'مخاطبین به‌روز هستند. ✓');
-  }catch(e){if(showToast)toast('دریافت مخاطبین از سرور انجام نشد.')}finally{finish()}};
-  script.onerror=()=>{finish();if(showToast)toast('ارتباط با سرور مخاطبین برقرار نشد.');};
-  script.src=CONTACTS_API+'?action=pullContacts&callback='+encodeURIComponent(cb)+'&version=2&_='+Date.now();
-  document.body.appendChild(script);
-}
-
-
 const pickupText=()=>`سلام، وقت بخیر 🌷\nبسته پستی شما رسید.\nلطفاً برای دریافت بسته خود به دفتر پیشخوان چمن سلطان مراجعه فرمایید.\n📞 ۰۶۶۴۳۳۶۵۱۲۷\nبا تشکر`;
 function openSms(c){if(!c)return;const phone=normPhone(c.phone);const body=pickupText();location.href=`sms:${phone}?body=${encodeURIComponent(body)}`;}
 
@@ -960,15 +889,10 @@ function deleteContact(id){
   const c=contacts.find(x=>String(x.id)===String(id));
   if(!c)return;
   if(!confirm(`مخاطب «${c.name||'بدون نام'}» حذف شود؟`))return;
-  const ph=normPhone(c.phone).replace(/\D/g,'');
-  const deletedAt=nowIso();
-  if(ph) deletedContacts[ph]=deletedAt;
   contacts=contacts.filter(x=>String(x.id)!==String(id));
   localStorage.setItem(CONTACTS,JSON.stringify(contacts));
-  localStorage.setItem(CONTACT_DELETED,JSON.stringify(deletedContacts));
-  queueContactsServerSave();
   renderContacts();
-  toast('مخاطب حذف شد و حذف آن در سرور نیز ثبت می‌شود.');
+  toast('مخاطب حذف شد.');
 }
 
 function contactIcon(k){
@@ -980,8 +904,7 @@ function contactIcon(k){
     edit:`<svg viewBox="0 0 24 24" ${s}><path d="m4 16.5-.8 3.8 3.8-.8L18.7 7.8a2.1 2.1 0 0 0-3-3L4 16.5Z"/><path d="m14 6 4 4"/></svg>`,
     sms:`<svg viewBox="0 0 24 24" ${s}><path d="M4 5.5h16v11H8l-4 3v-14Z"/><path d="M7.5 9h9M7.5 12h6"/></svg>`,
     call:`<svg viewBox="0 0 24 24" ${s}><path d="M7.2 4.5 9.5 3l2 4-2 1.5c1 2 2.2 3.2 4.2 4.2l1.5-2 4 2-1.5 2.3c-.7 1-1.7 1.5-2.8 1.3C9.6 15.4 6.6 12.4 5.2 7.1c-.3-1.1.1-2 1.9-2.6Z"/></svg>`,
-    trash:`<svg viewBox="0 0 24 24" ${s}><path d="M5 7h14M9 7V4h6v3M8 10v8M12 10v8M16 10v8M6 7l1 14h10l1-14"/></svg>`,
-    refresh:`<svg viewBox="0 0 24 24" ${s}><path d="M20 11a8 8 0 0 0-14.7-4L4 9"/><path d="M4 5v4h4"/><path d="M4 13a8 8 0 0 0 14.7 4L20 15"/><path d="M20 19v-4h-4"/></svg>`
+    trash:`<svg viewBox="0 0 24 24" ${s}><path d="M5 7h14M9 7V4h6v3M8 10v8M12 10v8M16 10v8M6 7l1 14h10l1-14"/></svg>`
   }; return m[k]||'';
 }
 function renderContacts(){
@@ -997,7 +920,6 @@ function renderContacts(){
       <button id="addContactTop" class="cp-tool-icon cp-add-inline" type="button" aria-label="افزودن مخاطب" title="افزودن مخاطب">${contactIcon('user')}<b>+</b></button>
       <button id="sendSelected" class="cp-group" type="button" aria-label="پیام گروهی" title="پیام گروهی">${contactIcon('sms')}</button>
       <button id="shareSelectedContacts" class="cp-tool-icon" type="button" aria-label="اشتراک‌گذاری مخاطبین انتخاب‌شده" title="اشتراک‌گذاری">${contactIcon('share')}</button>
-      <button id="refreshContacts" class="cp-tool-icon" type="button" aria-label="به‌روزرسانی مخاطبین از سرور" title="به‌روزرسانی از سرور">${contactIcon('refresh')}</button>
     </div>
     <div class="cp-list">${a.length?a.map(c=>`<article class="cp-card"><div class="cp-main"><input class="contact-check" type="checkbox" value="${esc(c.id)}" aria-label="انتخاب ${esc(c.name||'مخاطب')}"><div class="cp-avatar">${contactIcon('user')}</div><div class="cp-info"><strong>${esc(c.name||'بدون نام')}</strong><span>${esc(c.phone||'بدون شماره')}</span></div></div><div class="cp-actions"><button class="cp-act edit" data-edit-contact="${esc(c.id)}" type="button" title="ویرایش">${contactIcon('edit')}</button><button class="cp-act sms" data-sms-contact="${esc(c.id)}" type="button" title="پیام">${contactIcon('sms')}</button><button class="cp-act call" data-call-contact="${esc(c.id)}" type="button" title="تماس">${contactIcon('call')}</button><button class="cp-act del" data-delete-contact="${esc(c.id)}" type="button" title="حذف">${contactIcon('trash')}</button></div></article>`).join(''):`<div class="cp-empty">${contactIcon('user')}<strong>هنوز مخاطبی ثبت نشده است</strong><span>برای افزودن اولین مخاطب، آیکن آدمک + را بزنید.</span></div>`}</div>
   </section>`;
@@ -1018,10 +940,9 @@ function renderContacts(){
 function editContact(id){const c=contacts.find(x=>String(x.id)===String(id));if(!c)return;$('#contactTitle').textContent='ویرایش مخاطب';$('#contactName').value=c.name||'';$('#contactPhone').value=c.phone||'';$('#saveContact').dataset.edit=id;openModal('contactModal')}
 function archiveKey(iso){const d=iso?new Date(iso):new Date();if(Number.isNaN(d.getTime()))return localDateKey(new Date());return localDateKey(d)}
 function localDateKey(d){const x=d instanceof Date?d:new Date(d);const y=x.getFullYear(),m=String(x.getMonth()+1).padStart(2,'0'),day=String(x.getDate()).padStart(2,'0');return `${y}-${m}-${day}`}
-function currentMonthKey(){const d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`}
 function refreshArchive(){rebuildArchive();localStorage.setItem(ARCHIVE,JSON.stringify(archiveByDate));return archiveSummary()}
-function rebuildArchive(){const month=currentMonthKey(),next={};parcels.filter(p=>p.delivered&&p.deliveredAt).forEach(p=>{const k=archiveKey(p.deliveredAt);if(k.slice(0,7)!==month)return;(next[k]??=[]).push(p.id)});archiveByDate=next;localStorage.setItem(ARCHIVE,JSON.stringify(archiveByDate))}
-function archiveSummary(){const month=currentMonthKey();return Object.entries(archiveByDate).filter(([d])=>d.slice(0,7)===month).sort((a,b)=>b[0].localeCompare(a[0])).map(([d,ids])=>({date:d,count:ids.length}))}
+function rebuildArchive(){const next={};parcels.filter(p=>p.delivered&&p.deliveredAt).forEach(p=>{const k=archiveKey(p.deliveredAt);(next[k]??=[]).push(p.id)});archiveByDate=next;localStorage.setItem(ARCHIVE,JSON.stringify(archiveByDate))}
+function archiveSummary(){return Object.entries(archiveByDate).sort((a,b)=>b[0].localeCompare(a[0])).map(([d,ids])=>({date:d,count:ids.length}))}
 function toast(t){const el=$('#toast');el.textContent=t;el.classList.add('show');clearTimeout(window.__toast);window.__toast=setTimeout(()=>el.classList.remove('show'),2600)}
 function esc(v){return String(v??'').replace(/[&<>'"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[m]))}
 function faDate(d){try{return new Intl.DateTimeFormat('fa-IR',{year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date(d))}catch(e){return d}}
@@ -1029,7 +950,7 @@ function faTime(d){try{return new Intl.DateTimeFormat('fa-IR',{hour:'2-digit',mi
 function nowIso(){return new Date().toISOString()}
 function updateProfile(){$('#officeName').textContent=profile.office||'دفتر پستی';$('#cityName').textContent=profile.city||'ثبت نشده';$('#managerName').textContent=profile.manager||'ثبت نشده'}
 function counts(){const today=localDateKey(new Date());const active=parcels.filter(x=>!x.deleted);const all=active.filter(x=>!x.delivered||archiveKey(x.deliveredAt)===today).length;const wait=active.filter(x=>!x.delivered).length;const done=active.filter(x=>x.delivered&&archiveKey(x.deliveredAt)===today).length;$('#allCount').textContent=all;$('#waitCount').textContent=wait;$('#doneCount').textContent=done}
-function visible(){const q=$('#search').value.trim().toLowerCase();const today=localDateKey(new Date());return parcels.filter(p=>{if(p.deleted)return false;const deliveredToday=!!p.delivered&&archiveKey(p.deliveredAt)===today;const ok=filter==='all'?(!p.delivered||deliveredToday):(filter==='done'&&deliveredToday)||(filter==='waiting'&&!p.delivered);const hay=[p.barcode,p.name,p.address,p.receiver,p.phone].join(' ').toLowerCase();return ok&&(!q||hay.includes(q))}).sort((a,b)=>new Date(b.deliveredAt||b.createdAt||0)-new Date(a.deliveredAt||a.createdAt||0))}
+function visible(){const q=$('#search').value.trim().toLowerCase();const today=localDateKey(new Date());return parcels.filter(p=>{if(p.deleted)return false;const deliveredToday=!!p.delivered&&archiveKey(p.deliveredAt)===today;const ok=filter==='all'?(!p.delivered||deliveredToday):(filter==='done'&&p.delivered)||(filter==='waiting'&&!p.delivered);const hay=[p.barcode,p.name,p.address,p.receiver,p.phone].join(' ').toLowerCase();return ok&&(!q||hay.includes(q))}).sort((a,b)=>new Date(b.deliveredAt||b.createdAt||0)-new Date(a.deliveredAt||a.createdAt||0))}
 function card(p){const done=!!p.delivered; const name=p.name||'نام گیرنده ثبت نشده'; const media=done?`<div class="proofs"><div class="proof"><div class="proof-title">📷 تصویر تحویل</div>${p.photo?`<img class="proof-img" src="${p.photo}" alt="تصویر تحویل مرسوله">`:`<div class="proof-empty">ثبت نشده</div>`}</div><div class="proof"><div class="proof-title">✍️ امضا</div>${p.signature?`<img class="proof-img signature-img" src="${p.signature}" alt="امضای تحویل‌گیرنده">`:`<div class="proof-empty">ثبت نشده</div>`}</div></div>`:''; const details=done?`<div class="details"><div class="detail"><div class="detail-label">تحویل‌گیرنده</div><div class="detail-value">${esc(p.receiver||'ثبت نشده')}</div></div><div class="detail"><div class="detail-label">تاریخ تحویل</div><div class="detail-value">${faDate(p.deliveredAt)}</div></div><div class="detail"><div class="detail-label">ساعت</div><div class="detail-value">${faTime(p.deliveredAt)}</div></div><div class="detail"><div class="detail-label">شماره تماس</div><div class="detail-value">${esc(p.phone||'ثبت نشده')}</div></div></div>${media}<div class="success-note"><span class="check">✓</span><span>مرسوله با موفقیت تحویل داده شد</span></div>`:`<div class="details"><div class="detail"><div class="detail-label">تاریخ دریافت</div><div class="detail-value">${faDate(p.createdAt)}</div></div><div class="detail"><div class="detail-label">وضعیت</div><div class="detail-value">آماده ثبت تحویل</div></div></div>`; return `<article class="parcel ${done?'done':'waiting'}"><div class="phead"><span class="status ${done?'done':'waiting'}">${done?'✓ تحویل‌شده':'◷ در انتظار'}</span><button class="trash" data-delete="${p.id}" title="حذف مرسوله">⌫</button></div><div class="pbody"><div class="personline"><div><div class="personlabel">نام گیرنده</div><div class="personname">${esc(name)}</div></div><div class="address"><div class="personlabel">نشانی</div>${esc(p.address||'بدون نشانی')}</div></div><div class="barcodebox"><div class="barcode-label">▥ شماره بارکد</div><div class="barcode">${esc(p.barcode)}</div></div>${details}<div class="actions-bottom"><button class="pbtn edit" data-edit="${p.id}">✎ ویرایش</button>${done?`<button class="pbtn restore" data-restore="${p.id}">↶ بازگردانی</button>`:`<button class="pbtn deliver" data-deliver="${p.id}">✓ ثبت تحویل</button>`}</div></div></article>`}
 function archiveCard(p){
   const name=p.name||'نام گیرنده ثبت نشده';
@@ -1047,7 +968,7 @@ function render(){
     const q=$('#search').value.trim().toLowerCase();
     shown=parcels.filter(p=>{if(p.deleted)return false;const hay=[p.barcode,p.name,p.address,p.receiver,p.phone].join(' ').toLowerCase();return !q||hay.includes(q)}).sort((a,b)=>new Date(b.deliveredAt||b.createdAt||0)-new Date(a.deliveredAt||a.createdAt||0));
   }
-  if(view==='delivered'){const today=localDateKey(new Date());shown=parcels.filter(p=>!p.deleted&&p.delivered&&archiveKey(p.deliveredAt)===today).sort((a,b)=>new Date(b.deliveredAt||0)-new Date(a.deliveredAt||0));}
+  if(view==='delivered') shown=parcels.filter(p=>!p.deleted&&p.delivered).sort((a,b)=>new Date(b.deliveredAt||0)-new Date(a.deliveredAt||0));
   if(view==='archive') shown=arr.filter(p=>p.delivered);
   $('#listTitle').textContent=view==='all'?'کل مرسولات':view==='waiting'?'مرسولات در انتظار':view==='delivered'?'مرسوله‌های تحویل‌شده':view==='archive'?'بایگانی روزانه':'همه مرسولات';
   let html='';
@@ -1075,12 +996,12 @@ function openDelivery(id){deliveryId=id;const p=parcels.find(x=>x.id===id);$('#r
 function renderMultiDelivery(base){const box=$('#multiDeliveryBox'),list=$('#multiDeliveryList');if(!box||!list||!base)return;const matches=parcels.filter(p=>!p.deleted&&!p.delivered);if(matches.length<2){box.style.display='none';list.innerHTML='';$('#multiSelectToggle').style.display='none';return}$('#multiSelectToggle').style.display='inline-flex';box.style.display='none';list.innerHTML=matches.map(p=>`<label class="multi-item"><input type="checkbox" class="multi-delivery-check" value="${esc(p.id)}" ${p.id===base.id?'checked':''}><span class="multi-barcode">${esc(p.barcode)}</span><span class="multi-meta">${esc(p.name||'بدون نام')}</span></label>`).join('');$('#multiSelectedCount').textContent='(۱ انتخاب)'}
 function clearSig(){const c=$('#signatureCanvas'),ctx=c.getContext('2d');ctx.clearRect(0,0,c.width,c.height);signatureDirty=false}
 function setupSignature(){const c=$('#signatureCanvas'),ctx=c.getContext('2d');let drawing=false;function pos(e){const r=c.getBoundingClientRect(),pt=e.touches?e.touches[0]:e;return {x:(pt.clientX-r.left)*c.width/r.width,y:(pt.clientY-r.top)*c.height/r.height}}function start(e){e.preventDefault();drawing=true;const p=pos(e);ctx.beginPath();ctx.moveTo(p.x,p.y)}function move(e){if(!drawing)return;e.preventDefault();const p=pos(e);ctx.lineTo(p.x,p.y);ctx.strokeStyle='#173b67';ctx.lineWidth=5;ctx.lineCap='round';ctx.stroke();signatureDirty=true}function end(){drawing=false}['mousedown','touchstart'].forEach(x=>c.addEventListener(x,start,{passive:false}));['mousemove','touchmove'].forEach(x=>c.addEventListener(x,move,{passive:false}));['mouseup','mouseleave','touchend'].forEach(x=>c.addEventListener(x,end))}
-function saveParcel(){const barcode=$('#barcodeInput').value.replace(/\D/g,'');if(barcode.length<15||barcode.length>24)return toast('بارکد باید بین ۱۵ تا ۲۴ رقم باشد.');const dup=parcels.find(p=>!p.deleted&&p.barcode===barcode&&p.id!==editingId);if(dup)return toast('این بارکد قبلاً ثبت شده است.');const now=nowIso();if(editingId){const p=parcels.find(x=>x.id===editingId);if(!p)return;p.barcode=barcode;p.name=$('#nameInput').value.trim();p.address=$('#addressInput').value.trim();p.deleted=false;p.updatedAt=now}else parcels.push({id:crypto.randomUUID?crypto.randomUUID():String(Date.now()),barcode,name:$('#nameInput').value.trim(),address:$('#addressInput').value.trim(),createdAt:now,updatedAt:now,delivered:false,deleted:false});save();closeModal('parcelModal');render();toast('مرسوله ذخیره شد.')}
-function confirmDelivery(){const p=parcels.find(x=>x.id===deliveryId);const receiver=$('#receiverInput').value.trim(),phone=$('#phoneInput').value.trim();if(!p)return;if(!receiver||!phone)return toast('نام تحویل‌گیرنده و شماره تماس را کامل کنید.');if(!signatureDirty)return toast('لطفاً امضا را ثبت کنید.');let selectedIds=[p.id];$$('.multi-delivery-check:checked').forEach(x=>{if(x.value&&!selectedIds.includes(x.value))selectedIds.push(x.value)});const targets=parcels.filter(x=>selectedIds.includes(x.id)&&!x.deleted&&!x.delivered);if(!targets.length)return toast('مرسوله‌ای برای ثبت تحویل انتخاب نشده است.');const now=nowIso(),signature=$('#signatureCanvas').toDataURL('image/png');const f=$('#photoInput').files[0];const applyDelivery=(photo)=>{targets.forEach(t=>{t.delivered=true;t.receiver=receiver;t.phone=phone;t.deliveredAt=now;t.archiveDate=archiveKey(t.deliveredAt);t.signature=signature;t.updatedAt=now;t.deleted=false;if(photo)t.photo=photo});/* ثبت خودکار مخاطب مستقل از مرسوله */if(upsertDeliveryContact(receiver,phone)){contacts=normalizeContacts(contacts);localStorage.setItem(CONTACTS,JSON.stringify(contacts));queueContactsServerSave();}save();finishDelivery(targets.length)};if(f){const r=new FileReader();r.onload=()=>applyDelivery(r.result);r.readAsDataURL(f)}else applyDelivery('')}
+function saveParcel(){const barcode=$('#barcodeInput').value.replace(/\D/g,'');if(barcode.length<15||barcode.length>24)return toast('بارکد باید بین ۱۵ تا ۲۴ رقم باشد.');const dup=parcels.find(p=>!p.deleted&&p.barcode===barcode&&p.id!==editingId);if(dup)return toast('این بارکد قبلاً ثبت شده است.');const now=nowIso();if(editingId){const p=parcels.find(x=>x.id===editingId);if(!p)return;p.barcode=barcode;p.name=$('#nameInput').value.trim();p.address=$('#addressInput').value.trim();p.deleted=false;p.updatedAt=now}else parcels.push({id:crypto.randomUUID?crypto.randomUUID():String(Date.now()),barcode,name:$('#nameInput').value.trim(),address:$('#addressInput').value.trim(),createdAt:now,updatedAt:now,delivered:false,deleted:false,statusAt:now,statusAction:'created'});save();closeModal('parcelModal');render();toast('مرسوله ذخیره شد.')}
+function confirmDelivery(){const p=parcels.find(x=>x.id===deliveryId);const receiver=$('#receiverInput').value.trim(),phone=$('#phoneInput').value.trim();if(!p)return;if(!receiver||!phone)return toast('نام تحویل‌گیرنده و شماره تماس را کامل کنید.');if(!signatureDirty)return toast('لطفاً امضا را ثبت کنید.');let selectedIds=[p.id];$$('.multi-delivery-check:checked').forEach(x=>{if(x.value&&!selectedIds.includes(x.value))selectedIds.push(x.value)});const targets=parcels.filter(x=>selectedIds.includes(x.id)&&!x.deleted&&!x.delivered);if(!targets.length)return toast('مرسوله‌ای برای ثبت تحویل انتخاب نشده است.');const now=nowIso(),signature=$('#signatureCanvas').toDataURL('image/png');const f=$('#photoInput').files[0];const applyDelivery=(photo)=>{targets.forEach(t=>{t.delivered=true;t.receiver=receiver;t.phone=phone;t.deliveredAt=now;t.archiveDate=archiveKey(t.deliveredAt);t.signature=signature;t.updatedAt=now;t.statusAt=now;t.statusAction='delivered';t.deleted=false;if(photo)t.photo=photo});/* ثبت خودکار مخاطب مستقل از مرسوله */upsertDeliveryContact(receiver,phone);save();finishDelivery(targets.length)};if(f){const r=new FileReader();r.onload=()=>applyDelivery(r.result);r.readAsDataURL(f)}else applyDelivery('')}
 function finishDelivery(count=1){refreshArchive();save();closeModal('deliveryModal');filter='done';render();toast(count>1?`${count} مرسوله هم‌زمان تحویل شد؛ یک شماره تماس و یک امضا برای همه ثبت شد.`:'تحویل با تاریخ و ساعت خودکار ثبت شد و در بایگانی روز قرار گرفت.')}
 function backup(){rebuildArchive();const data={version:3,exportedAt:nowIso(),profile,parcels,archiveByDate};const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='پشتیبان-مرسولات-'+new Date().toISOString().slice(0,10)+'.json';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),500);toast('فایل پشتیبان آماده شد.')}
 function restore(file){const r=new FileReader();r.onload=()=>{try{const d=JSON.parse(r.result);if(!Array.isArray(d.parcels))throw 0;let added=0;d.parcels.forEach(x=>{if(x.barcode&&!parcels.some(p=>p.barcode===x.barcode)){parcels.push(x);added++}});if(d.profile)profile={...profile,...d.profile};if(d.archiveByDate&&typeof d.archiveByDate==='object')archiveByDate={...archiveByDate,...d.archiveByDate};rebuildArchive();save();localStorage.setItem(PROFILE,JSON.stringify(profile));updateProfile();render();toast(`${added} مرسوله بازیابی شد؛ اطلاعات قبلی حفظ شد.`)}catch(e){toast('فایل پشتیبان معتبر نیست.')}};r.readAsText(file)}
-async function gallery(){const input=document.createElement('input');input.type='file';input.accept='image/*';input.onchange=async()=>{const file=input.files[0];if(!file)return;toast('در حال بررسی تصویر...');let found=[];try{if('BarcodeDetector' in window){const det=new BarcodeDetector();const bmp=await createImageBitmap(file);const codes=await det.detect(bmp);found=codes.map(x=>(x.rawValue||'').replace(/\D/g,''))}}catch(e){}try{if(!found.length&&window.Tesseract){const out=await Tesseract.recognize(file,'eng');found=(out.data.text.match(/\d{15,24}/g)||[])}}catch(e){}found=[...new Set(found.filter(x=>x.length>=15&&x.length<=24))].filter(x=>!parcels.some(p=>p.barcode===x));if(!found.length)return toast('بارکد معتبر جدیدی در تصویر پیدا نشد.');found.forEach(x=>parcels.push({id:crypto.randomUUID?crypto.randomUUID():String(Date.now()+Math.random()),barcode:x,name:'',address:'',createdAt:nowIso(),delivered:false}));save();render();toast(`${found.length} بارکد به فهرست اضافه شد.`)};input.click()}
+async function gallery(){const input=document.createElement('input');input.type='file';input.accept='image/*';input.onchange=async()=>{const file=input.files[0];if(!file)return;toast('در حال بررسی تصویر...');let found=[];try{if('BarcodeDetector' in window){const det=new BarcodeDetector();const bmp=await createImageBitmap(file);const codes=await det.detect(bmp);found=codes.map(x=>(x.rawValue||'').replace(/\D/g,''))}}catch(e){}try{if(!found.length&&window.Tesseract){const out=await Tesseract.recognize(file,'eng');found=(out.data.text.match(/\d{15,24}/g)||[])}}catch(e){}found=[...new Set(found.filter(x=>x.length>=15&&x.length<=24))].filter(x=>!parcels.some(p=>p.barcode===x));if(!found.length)return toast('بارکد معتبر جدیدی در تصویر پیدا نشد.');found.forEach(x=>{const now=nowIso();parcels.push({id:crypto.randomUUID?crypto.randomUUID():String(Date.now()+Math.random()),barcode:x,name:'',address:'',createdAt:now,updatedAt:now,delivered:false,deleted:false,statusAt:now,statusAction:'created'})});save();render();toast(`${found.length} بارکد به فهرست اضافه شد.`)};input.click()}
 let scanStream=null, scanReader=null, scanControls=null, scanActive=false, scanLast='', scanTimer=null, scanMode='save';
 
 function scanErrorMessage(e){
@@ -1095,86 +1016,88 @@ function scanErrorMessage(e){
 
 async function startLiveScan(mode='save'){
   scanMode=mode;
-  const video=$('#scanVideo'); const status=$('#scanStatus'); const title=$('#scanModal .sheet-head h3');
+  const video=$('#scanVideo'),status=$('#scanStatus'),title=$('#scanModal .sheet-head h3');
   title.textContent=mode==='search'?'اسکن بارکد برای جست‌وجو':'اسکن زنده QR و بارکد';
-  stopLiveScan(false);
-  openModal('scanModal');
-  video.setAttribute('playsinline',''); video.setAttribute('autoplay',''); video.muted=true;
-  status.textContent=mode==='search'?'در حال آماده‌سازی دوربین برای جست‌وجو...':'در حال درخواست دسترسی به دوربین...';
-
-  if(location.protocol!=='https:' && location.hostname!=='localhost'){
-    status.textContent='برای استفاده از دوربین، این سایت باید با HTTPS باز شود.';
-    return;
-  }
-  if(!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){
-    status.textContent='مرورگر فعلی API دوربین را در اختیار صفحه قرار نمی‌دهد.';
-    return;
-  }
+  stopLiveScan(false);openModal('scanModal');
+  video.setAttribute('playsinline','');video.setAttribute('autoplay','');video.muted=true;
+  status.textContent='در حال آماده‌سازی دوربین…';
+  if(location.protocol!=='https:'&&location.hostname!=='localhost'){status.textContent='برای استفاده از دوربین، سایت باید با HTTPS باز شود.';return;}
+  if(!navigator.mediaDevices?.getUserMedia){status.textContent='مرورگر فعلی API دوربین را در اختیار صفحه قرار نمی‌دهد.';return;}
   try{
-    // اول خود دوربین را مستقیماً باز می‌کنیم تا مطمئن شویم مشکل از لایه اسکن نیست.
-    // بعد همان stream را به ZXing می‌دهیم.
-    scanStream=await navigator.mediaDevices.getUserMedia({
-      audio:false,
-      video:{facingMode:{ideal:'environment'},width:{ideal:1280},height:{ideal:720}}
-    });
-    video.srcObject=scanStream;
-    await video.play();
-    scanActive=true;
-    status.textContent=mode==='search'?'دوربین فعال شد؛ بارکد موردنظر برای جست‌وجو را داخل کادر قرار دهید.':'دوربین فعال شد؛ بارکد را داخل کادر قرار دهید.';
-
-    if(!window.ZXingBrowser || !window.ZXingBrowser.BrowserMultiFormatReader){
-      status.textContent='تصویر دوربین فعال است، اما موتور تشخیص بارکد بارگذاری نشده؛ صفحه را یک‌بار تازه‌سازی کنید.';
-      return;
-    }
-
-    scanReader=new ZXingBrowser.BrowserMultiFormatReader();
-    if(typeof scanReader.decodeFromStream==='function'){
-      scanControls=await scanReader.decodeFromStream(
-        scanStream,
-        video,
-        (result,err)=>{
-          if(!scanActive) return;
-          if(result){
-            const value=(result.getText?result.getText():result.text||'').trim();
-            if(value && value!==scanLast){
-              scanLast=value;
-              if(scanMode==='search'){
-                const searchValue=String(value).trim().replace(/\D/g,'').slice(0,24);
-                if(searchValue){
-                  $('#search').value=searchValue;
-                  render();
-                  if(navigator.vibrate) navigator.vibrate(120);
-                  $('#scanStatus').textContent='بارکد در جست‌وجو قرار گرفت؛ در حال نمایش نتیجه...';
-                  setTimeout(()=>stopLiveScan(true),220);
-                }
-              }else{
-                autoSaveScanned(value);
-                if(navigator.vibrate) navigator.vibrate(120);
+    scanStream=await navigator.mediaDevices.getUserMedia({audio:false,video:{facingMode:{ideal:'environment'},width:{ideal:1280},height:{ideal:720}}});
+    video.srcObject=scanStream;await video.play();scanActive=true;
+    status.textContent='دوربین فعال شد؛ بارکد را داخل کادر قرار دهید.';
+    if('BarcodeDetector' in globalThis&&typeof BarcodeDetector.getSupportedFormats==='function'){
+      try{
+        const wanted=['qr_code','code_128','code_39','code_93','codabar','ean_13','ean_8','itf','upc_a','upc_e','data_matrix','pdf417','aztec'];
+        const available=await BarcodeDetector.getSupportedFormats();
+        const formats=wanted.filter(x=>available.includes(x));
+        if(formats.length){
+          const detector=new BarcodeDetector({formats});let lastFrame=0;
+          const detectLoop=async ts=>{
+            if(!scanActive)return;
+            if(ts-lastFrame<90){requestAnimationFrame(detectLoop);return;}
+            lastFrame=ts;
+            try{
+              const results=await detector.detect(video);
+              if(results?.length){
+                const value=String(results[0].rawValue||'').trim();
+                if(value&&value!==scanLast){scanLast=value;handleScanResult(value);return;}
               }
-            }
-          }
+            }catch(_e){}
+            requestAnimationFrame(detectLoop);
+          };
+          requestAnimationFrame(detectLoop);return;
         }
-      );
-    } else {
-      status.textContent='دوربین فعال است؛ نسخه موتور اسکن با این مرورگر سازگار نیست.';
+      }catch(_e){}
     }
+    if(window.ZXingBrowser?.BrowserMultiFormatReader){
+      scanReader=new ZXingBrowser.BrowserMultiFormatReader();
+      if(typeof scanReader.decodeFromStream==='function'){
+        scanControls=await scanReader.decodeFromStream(scanStream,video,(result)=>{
+          if(!scanActive||!result)return;
+          const value=(result.getText?result.getText():result.text||'').trim();
+          if(value&&value!==scanLast){scanLast=value;handleScanResult(value);}
+        });return;
+      }
+    }
+    status.textContent='دوربین فعال است، اما موتور تشخیص بارکد بارگذاری نشده است.';
   }catch(e){
-    console.error('Live scanner error:',e);
-    scanActive=false;
-    try{if(scanControls&&scanControls.stop)scanControls.stop()}catch(_e){}
-    try{if(scanReader&&scanReader.reset)scanReader.reset()}catch(_e){}
-    scanControls=null; scanReader=null;
-    status.textContent=scanErrorMessage(e);
+    console.error('Live scanner error:',e);scanActive=false;
+    try{scanControls?.stop?.()}catch(_e){}try{scanReader?.reset?.()}catch(_e){}
+    scanControls=null;scanReader=null;status.textContent=scanErrorMessage(e);
   }
 }
-
+function handleScanResult(value){
+  if(!scanActive)return;
+  if(scanMode==='search'){
+    const searchValue=String(value).trim().replace(/\D/g,'').slice(0,24);
+    if(searchValue){
+      $('#search').value=searchValue;render();
+      if(navigator.vibrate)navigator.vibrate(100);
+      $('#scanStatus').textContent='بارکد پیدا شد؛ نتیجه نمایش داده شد.';
+      setTimeout(()=>stopLiveScan(true),180);
+    }
+  }else{
+    autoSaveScanned(value);
+    if(navigator.vibrate)navigator.vibrate(100);
+  }
+}
 function autoSaveScanned(value){
-  let barcode=String(value).trim();
+  let raw=String(value||'').trim(),barcode=raw.replace(/\D/g,'');
   if(!barcode)return;
   if(barcode.length>24)barcode=barcode.slice(0,24);
-  if(parcels.some(p=>p.barcode===barcode)){toast('این کد قبلاً در فهرست ثبت شده است.');return;}
-  parcels.unshift({id:crypto.randomUUID?crypto.randomUUID():String(Date.now()+Math.random()),barcode,name:'',address:'',createdAt:nowIso(),delivered:false});
-  save(); filter='all'; render(); toast('QR / بارکد با موفقیت تشخیص داده شد و خودکار ذخیره شد.');
+  if(/^\d+$/.test(barcode)&&(barcode.length<15||barcode.length>24)){
+    $('#scanStatus').textContent='کد شناسایی شد اما طول آن خارج از محدوده ۱۵ تا ۲۴ رقم است.';return;
+  }
+  if(parcels.some(p=>String(p.barcode||'')===barcode&&!p.deleted)){
+    toast('این کد قبلاً در فهرست ثبت شده است.');$('#scanStatus').textContent='این بارکد قبلاً ثبت شده است.';return;
+  }
+  const now=nowIso();
+  parcels.unshift({id:crypto.randomUUID?crypto.randomUUID():String(Date.now()+Math.random()),barcode,name:'',address:'',createdAt:now,updatedAt:now,delivered:false,deleted:false,statusAt:now,statusAction:'created'});
+  save();filter='all';render();$('#scanStatus').textContent='✓ بارکد تشخیص داده شد و ذخیره شد.';
+  toast('QR / بارکد با موفقیت تشخیص داده شد و خودکار ذخیره شد.');
+  setTimeout(()=>stopLiveScan(true),180);
 }
 function stopLiveScan(close=true){scanActive=false;scanLast='';if(scanTimer){clearInterval(scanTimer);scanTimer=null}try{if(scanControls&&scanControls.stop)scanControls.stop()}catch(e){}scanControls=null;try{if(scanReader&&scanReader.reset)scanReader.reset()}catch(e){}scanReader=null;if(scanStream){scanStream.getTracks().forEach(t=>t.stop());scanStream=null}const v=$('#scanVideo');if(v){try{v.pause()}catch(e){}v.srcObject=null}if(close)closeModal('scanModal')}
 function saveProfile(){profile={office:$('#officeInput').value.trim(),city:$('#cityInput').value.trim(),manager:$('#managerInput').value.trim()};localStorage.setItem(PROFILE,JSON.stringify(profile));updateProfile();closeModal('profileModal');toast('پروفایل ذخیره شد.')}
@@ -1183,8 +1106,8 @@ $$('[data-close]').forEach(b=>b.onclick=()=>{if(b.dataset.close==='scanModal')st
   const item=e.target.closest('[data-archive-item]');if(item&&!e.target.closest('button')){item.classList.toggle('open');return}
   const day=e.target.closest('[data-archive-date]');
   if(day){const d=day.dataset.archiveDate;openArchives.has(d)?openArchives.delete(d):openArchives.add(d);render();return}
-  const t=e.target.closest('button');if(!t)return;const id=t.dataset.delete||t.dataset.edit||t.dataset.deliver||t.dataset.restore;if(!id)return;if(t.dataset.delete){if(confirm('این مرسوله حذف شود؟')){markDeletedAndSync(id);render();toast('مرسوله حذف شد و برای همه دستگاه‌ها همگام می‌شود.')}}else if(t.dataset.edit)editParcel(id);else if(t.dataset.deliver)openDelivery(id);else if(t.dataset.restore){const p=parcels.find(x=>x.id===id);if(p){p.delivered=false;delete p.receiver;delete p.phone;delete p.deliveredAt;delete p.archiveDate;delete p.photo;rebuildArchive();save();filter='waiting';render();toast('مرسوله به فهرست انتظار بازگردانده شد.')}}});
-window.addEventListener('click',e=>{if(e.target.classList.contains('modal'))e.target.classList.remove('show')});rebuildArchive();updateProfile();$('#todayText').textContent=faDate(new Date());setupSignature();render();
+  const t=e.target.closest('button');if(!t)return;const id=t.dataset.delete||t.dataset.edit||t.dataset.deliver||t.dataset.restore;if(!id)return;if(t.dataset.delete){if(confirm('این مرسوله حذف شود؟')){markDeletedAndSync(id);render();toast('مرسوله حذف شد و برای همه دستگاه‌ها همگام می‌شود.')}}else if(t.dataset.edit)editParcel(id);else if(t.dataset.deliver)openDelivery(id);else if(t.dataset.restore){const p=parcels.find(x=>x.id===id);if(p){const now=nowIso();p.delivered=false;delete p.receiver;delete p.phone;delete p.deliveredAt;delete p.archiveDate;delete p.photo;p.statusAt=now;p.statusAction='restored';p.updatedAt=now;rebuildArchive();save();filter='waiting';render();toast('مرسوله به فهرست انتظار بازگردانده شد.')}}});
+window.addEventListener('click',e=>{if(e.target.classList.contains('modal'))e.target.classList.remove('show')});rebuildArchive();updateProfile();$('#todayText').textContent=faDate(new Date());setupSignature();render();if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));}
 /* ===== Global 5-style switch — settings menu only ===== */
 const THEME_KEY='parcel_theme_index';
 function applyTheme(n){
@@ -1195,9 +1118,7 @@ function applyTheme(n){
 }
 /* ===== Google Sheets multi-device sync - PRO / ROBUST ===== */
 const SYNC_API = "https://script.google.com/macros/s/AKfycbw3gF5e30t6pLIQzA_wF_EEmpouggk_eTn8KbvL0RsMd_qRHdnXOGYxqjZ7ONz6M6v8/exec";
-const CONTACTS_API = localStorage.getItem('contacts_api_url') || SYNC_API;
-let contactsSaveTimer=null, contactsSaveBusy=false, contactsSaveQueued=false;
-const SYNC_VERSION = 7;
+const SYNC_VERSION = 8;
 let deletedIds=read('parcel_deleted_ids_v1',[]);
 function saveDeletedIds(){localStorage.setItem('parcel_deleted_ids_v1',JSON.stringify([...new Set((deletedIds||[]).map(String))]))}
 function applyRemoteDeletes(ids){
@@ -1233,40 +1154,54 @@ function recordTime(p){
   const t=Date.parse(p?.updatedAt || p?.createdAt || '');
   return Number.isFinite(t)?t:0;
 }
-
+function statusTime(p){
+  const t=Date.parse(p?.statusAt || p?.deliveredAt || p?.updatedAt || p?.createdAt || '');
+  return Number.isFinite(t)?t:0;
+}
 function normalizeParcelForSync(p){
   const x={...p};
-  if(!x.updatedAt) x.updatedAt=x.createdAt||nowIso();
-  if(x.deleted===undefined) x.deleted=false;
+  if(!x.updatedAt)x.updatedAt=x.createdAt||nowIso();
+  if(!x.statusAt)x.statusAt=x.deliveredAt||x.updatedAt||x.createdAt||nowIso();
+  if(!x.statusAction)x.statusAction=x.delivered?'delivered':'created';
+  if(x.deleted===undefined)x.deleted=false;
+  if(x.barcode)x.barcode=String(x.barcode).replace(/\D/g,'').slice(0,24);
   return x;
 }
-
 function syncEnvelope(list){
   let device=localStorage.getItem('parcel_device_id');
   if(!device){
     device='D-'+Date.now()+'-'+Math.random().toString(36).slice(2,10);
     localStorage.setItem('parcel_device_id',device);
   }
-  return {
-    version:SYNC_VERSION,
-    device,
-    parcels:(list || parcels || []).map(normalizeParcelForSync),
-    profile:profile || {}
-  };
+  return {version:SYNC_VERSION,device,parcels:(list||parcels||[]).map(normalizeParcelForSync),profile:profile||{}};
 }
-
-function mergeParcels(localList, remoteList){
-  const map=new Map();
+function chooseNewerParcel(a,b){
+  if(!a)return b;if(!b)return a;
+  const sa=statusTime(a),sb=statusTime(b);
+  if(sa!==sb)return sa>sb?a:b;
+  const ua=recordTime(a),ub=recordTime(b);
+  return ua>=ub?a:b;
+}
+function mergeParcels(localList,remoteList){
+  const map=new Map(),barcodeMap=new Map();
   const blocked=new Set((deletedIds||[]).map(String));
-  (localList||[]).forEach(p=>{
-    if(p&&p.id&&!blocked.has(String(p.id))&&!p.deleted) map.set(String(p.id),normalizeParcelForSync(p));
-  });
-  (remoteList||[]).forEach(p=>{
-    if(!p||!p.id) return;
-    const id=String(p.id), r=normalizeParcelForSync(p), l=map.get(id);
-    if(blocked.has(id)||r.deleted) return;
-    if(!l || recordTime(r)>=recordTime(l)) map.set(id,r);
-  });
+  const add=raw=>{
+    if(!raw||!raw.id)return;
+    const p=normalizeParcelForSync(raw),id=String(p.id);
+    if(blocked.has(id)||p.deleted)return;
+    map.set(id,chooseNewerParcel(map.get(id),p));
+  };
+  (localList||[]).forEach(add);(remoteList||[]).forEach(add);
+  for(const [id,p] of map){
+    const bc=String(p.barcode||'').replace(/\D/g,'');
+    if(!bc)continue;
+    const prevId=barcodeMap.get(bc);
+    if(!prevId){barcodeMap.set(bc,id);continue;}
+    const prev=map.get(prevId),winner=chooseNewerParcel(prev,p);
+    const loserId=winner===prev? id : prevId;
+    map.set(String(winner.id),winner);map.delete(String(loserId));
+    barcodeMap.set(bc,String(winner.id));
+  }
   return [...map.values()];
 }
 
@@ -1290,50 +1225,37 @@ function markDeletedAndSync(id){
 
 async function postMergedSnapshot(){
   const payload=JSON.stringify(syncEnvelope(parcels));
-  syncStatus('☁️ در حال ارسال اطلاعات…');
+  syncStatus(navigator.onLine?'☁️ در حال همگام‌سازی…':'📴 آفلاین؛ در صف ارسال');
+  if(!navigator.onLine)return false;
   try{
-    /*
-      Google Apps Script پاسخ POST را از صفحه cross-origin قابل خواندن نمی‌کند.
-      بنابراین no-cors فقط برای ارسال است و موفقیت واقعی با یک pull بعدی
-      تأیید می‌شود.
-    */
-    await fetch(SYNC_API,{
-      method:'POST',
-      mode:'no-cors',
-      headers:{'Content-Type':'text/plain;charset=UTF-8'},
-      body:payload,
-      keepalive:true
-    });
+    await fetch(SYNC_API,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=UTF-8'},body:payload,keepalive:true});
     return true;
   }catch(e){
     try{
       if(navigator.sendBeacon){
-        const ok=navigator.sendBeacon(
-          SYNC_API,
-          new Blob([payload],{type:'text/plain;charset=UTF-8'})
-        );
-        if(ok) return true;
+        const ok=navigator.sendBeacon(SYNC_API,new Blob([payload],{type:'text/plain;charset=UTF-8'}));
+        if(ok)return true;
       }
     }catch(_e){}
-    console.error('sync POST error',e);
-    syncStatus('⚠️ ارسال انجام نشد؛ در حال تلاش مجدد…');
-    return false;
+    console.error('sync POST error',e);return false;
   }
 }
-
 async function syncPush(){
-  if(!syncReady) return;
+  if(!syncReady)return;
+  if(!navigator.onLine){syncQueued=true;syncStatus('📴 آفلاین • اطلاعات روی گوشی ذخیره شد');return;}
   if(syncBusy){syncQueued=true;return;}
   clearTimeout(syncTimer);
   syncTimer=setTimeout(async()=>{
     const sent=await postMergedSnapshot();
     clearTimeout(syncVerifyTimer);
-    syncVerifyTimer=setTimeout(()=>{
-      if(sent) syncPull(false,true,0);
-      else syncPull(false,true,0);
-    },1200);
-  },350);
+    syncVerifyTimer=setTimeout(()=>syncPull(false,true,0),sent?700:1200);
+  },180);
 }
+window.addEventListener('online',()=>{
+  syncStatus('🌐 اینترنت وصل شد • در حال همگام‌سازی…');
+  syncReady=true;syncQueued=false;syncPush();setTimeout(()=>syncPull(false,false,0),300);
+});
+window.addEventListener('offline',()=>syncStatus('📴 آفلاین • ذخیره محلی فعال است'));
 
 function syncPull(showToast=true,verifyOnly=false,retry=0){
   if(syncBusy){ syncQueued=true; return; }
@@ -1479,10 +1401,9 @@ window.addEventListener('load',function(){
 (function(){
   document.addEventListener('click',e=>{
     const add=e.target.closest('#addContactTop');if(add){$('#contactTitle').textContent='افزودن مخاطب';$('#contactName').value='';$('#contactPhone').value='';delete $('#saveContact').dataset.edit;openModal('contactModal');return}
-    const ref=e.target.closest('#refreshContacts');if(ref){pullContactsFromServer(true);return;}
     const sms=e.target.closest('[data-sms-contact]');if(sms){const c=contacts.find(x=>String(x.id)===String(sms.dataset.smsContact));openSms(c);return}
     const ed=e.target.closest('[data-edit-contact]');if(ed){editContact(ed.dataset.editContact);return}
-    if(e.target.closest('#saveContact')){const n=$('#contactName').value.trim(),ph=normPhone($('#contactPhone').value),id=$('#saveContact').dataset.edit;if(!n||ph.replace(/\D/g,'').length<8){toast('نام و شماره تماس را کامل وارد کنید.');return}const cleanPh=String(ph).replace(/\D/g,'');const dup=contacts.find(c=>String(normPhone(c.phone)).replace(/\D/g,'')===cleanPh&&String(c.id)!==String(id||''));if(dup){toast('این شماره قبلاً ثبت شده است.');return}if(id){const c=contacts.find(x=>String(x.id)===String(id));if(c){const oldPh=normPhone(c.phone).replace(/\D/g,'');if(oldPh&&oldPh!==cleanPh)deletedContacts[oldPh]=nowIso();c.name=n;c.phone=ph;c.updatedAt=nowIso();delete deletedContacts[cleanPh];}}else {contacts.unshift({id:crypto.randomUUID?crypto.randomUUID():String(Date.now()+Math.random()),name:n,phone:ph,createdAt:nowIso(),updatedAt:nowIso()});delete deletedContacts[cleanPh];}contacts=normalizeContacts(contacts);localStorage.setItem(CONTACT_DELETED,JSON.stringify(deletedContacts));localStorage.setItem(CONTACTS,JSON.stringify(contacts));queueContactsServerSave();closeModal('contactModal');toast(id?'مخاطب ویرایش شد و ذخیره سروری انجام می‌شود.':'مخاطب ذخیره شد و ارسال سروری انجام می‌شود.');if(window.bottomView==='contacts')render();return}
+    if(e.target.closest('#saveContact')){const n=$('#contactName').value.trim(),ph=normPhone($('#contactPhone').value),id=$('#saveContact').dataset.edit;if(!n||ph.replace(/\D/g,'').length<8){toast('نام و شماره تماس را کامل وارد کنید.');return}const cleanPh=String(ph).replace(/\D/g,'');const dup=contacts.find(c=>String(normPhone(c.phone)).replace(/\D/g,'')===cleanPh&&String(c.id)!==String(id||''));if(dup){toast('این شماره قبلاً ثبت شده است.');return}if(id){const c=contacts.find(x=>String(x.id)===String(id));if(c){c.name=n;c.phone=ph}}else contacts.unshift({id:crypto.randomUUID?crypto.randomUUID():String(Date.now()+Math.random()),name:n,phone:ph,createdAt:nowIso()});save();closeModal('contactModal');toast(id?'مخاطب ویرایش شد.':'مخاطب ذخیره شد.');if(window.bottomView==='contacts')render();return}
     if(e.target.closest('#sendSelected')){const ids=$$('.contact-check:checked').map(x=>String(x.value));const selected=ids.map(id=>contacts.find(x=>String(x.id)===id)).filter(Boolean);sendSelectedContacts();return}
   });
   document.addEventListener('change',e=>{if(e.target.matches('#selectContactsAll')){window.selectedContactIds=window.selectedContactIds instanceof Set?window.selectedContactIds:new Set();$$('.contact-check').forEach(x=>{const id=String(x.value);if(e.target.checked)window.selectedContactIds.add(id);else window.selectedContactIds.delete(id);});const c=$('#selectedCount');if(c)c.textContent=`${window.selectedContactIds.size}/${contacts.length}`;}if(e.target.matches('.contact-check')){window.selectedContactIds=window.selectedContactIds instanceof Set?window.selectedContactIds:new Set();const id=String(e.target.value);if(e.target.checked)window.selectedContactIds.add(id);else window.selectedContactIds.delete(id);const c=$('#selectedCount');if(c)c.textContent=`${window.selectedContactIds.size}/${contacts.length}`;}});
@@ -1519,7 +1440,7 @@ window.addEventListener('load',function(){
       window.scrollTo({top:0,behavior:'smooth'});
       return;
     }
-    if(view==='contacts'){if(typeof render==='function')render();if(typeof pullContactsFromServer==='function')pullContactsFromServer(false);window.scrollTo({top:0,behavior:'smooth'});return;} if(typeof filter!=='undefined') filter=(view==='waiting'?'waiting':(view==='delivered'||view==='archive'?'done':'all'));
+    if(view==='contacts'){if(typeof render==='function')render();window.scrollTo({top:0,behavior:'smooth'});return;} if(typeof filter!=='undefined') filter=(view==='waiting'?'waiting':(view==='delivered'||view==='archive'?'done':'all'));
     if(typeof render==='function')render();
     if(title){title.textContent=view==='all'?'کل مرسولات':view==='waiting'?'مرسولات در انتظار':view==='delivered'?'مرسولات تحویل‌شده':view==='archive'?'بایگانی روزانه':view==='contacts'?'دفترچه مخاطبین':'کل مرسولات';}
     window.scrollTo({top:0,behavior:'smooth'});
@@ -1616,5 +1537,4 @@ function openContactShareBox(){
 </script>
 
 
-<script>if("serviceWorker" in navigator){window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js").catch(()=>{}));}</script>
 </body></html>
