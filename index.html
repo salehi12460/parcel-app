@@ -364,7 +364,6 @@ body{padding-bottom:82px!important}
 body[data-bottom-view="home"] #listHead,body[data-bottom-view="home"] #listToolbar,body[data-bottom-view="home"] #list{display:none!important}
 body:not([data-bottom-view="home"]) #dashboardHero,body:not([data-bottom-view="home"]) #operationsHead,body:not([data-bottom-view="home"]) #operationsSection,body:not([data-bottom-view="home"]) #summaryHead,body:not([data-bottom-view="home"]) #summarySection{display:none!important}
 body[data-bottom-view="archive"] #listToolbar{display:none!important}body[data-bottom-view="contacts"] #listToolbar{display:block!important}body[data-bottom-view="contacts"] .filterbar{display:none!important;display:none!important}
-body[data-bottom-view="archive"] #listHead h2::after{content:' روزانه';}
 @media(max-width:520px){.bottom-nav{left:6px;right:6px;bottom:6px;gap:2px;padding:6px 4px;border-radius:18px}.bottom-item{min-height:55px;font-size:8px}.bottom-item .bottom-icon{width:25px;height:25px;font-size:15px}}
 @media(min-width:700px){.bottom-nav{max-width:760px;margin:auto;left:0;right:0}}
 
@@ -809,16 +808,16 @@ body[data-bottom-view="archive"] #listHead h2::after{content:' روزانه';}
 <div class="modal" id="backupRestoreModal"><div class="sheet"><div class="sheet-head"><h3>پشتیبان‌گیری و بازیابی</h3><button class="close" data-close="backupRestoreModal">×</button></div><p class="hint">برای حفظ اطلاعات، می‌توانید یک فایل پشتیبان از مرسوله‌ها و تنظیمات ذخیره کنید یا فایل قبلی را برگردانید. بازیابی، اطلاعات موجود را حذف نمی‌کند.</p><div class="backup-choice-grid"><button type="button" class="backup-choice" id="backupNowBtn"><span class="backup-choice-ico">⇩</span><strong>پشتیبان‌گیری</strong><small>ذخیره یک فایل امن از اطلاعات فعلی</small></button><button type="button" class="backup-choice" id="restoreNowBtn"><span class="backup-choice-ico restore">⇧</span><strong>بازیابی</strong><small>انتخاب فایل و اضافه‌کردن اطلاعات قبلی</small></button></div><button type="button" class="mainbtn gray" data-close="backupRestoreModal" style="width:100%;margin-top:10px">بستن</button></div></div>
 <div class="toast" id="toast"></div>
 <script>
-const KEY='elygoudarz_parcels_precise_v3'; const PROFILE='elygoudarz_profile_v1'; const ARCHIVE='elygoudarz_archive_by_date_v1'; const CONTACTS='elygoudarz_contacts_v1';
-window.bottomView='home'; let parcels=read(KEY,[]), profile=read(PROFILE,{office:'اداره پست الیگودرز',city:'چمن سلطان',manager:'صالح کوتاه'}); let archiveByDate=read(ARCHIVE,{}); let contacts=read(CONTACTS,[]); let filter='all', editingId=null, deliveryId=null, signatureDirty=false; let openArchives=new Set();
+const KEY='elygoudarz_parcels_precise_v3'; const PROFILE='elygoudarz_profile_v1'; const ARCHIVE='elygoudarz_archive_by_date_v1'; const CONTACTS='elygoudarz_contacts_v1'; const CONTACT_DELETED='elygoudarz_contacts_deleted_v1';
+window.bottomView='home'; let parcels=read(KEY,[]), profile=read(PROFILE,{office:'اداره پست الیگودرز',city:'چمن سلطان',manager:'صالح کوتاه'}); let archiveByDate=read(ARCHIVE,{}); let contacts=read(CONTACTS,[]); let deletedContacts=read(CONTACT_DELETED,{}); let filter='all', editingId=null, deliveryId=null, signatureDirty=false; let openArchives=new Set();
 const $=s=>document.querySelector(s); const $$=s=>[...document.querySelectorAll(s)];
 function read(k,f){try{const x=JSON.parse(localStorage.getItem(k));return x??f}catch(e){return f}}
-function save(){localStorage.setItem(KEY,JSON.stringify(parcels));localStorage.setItem(ARCHIVE,JSON.stringify(archiveByDate));localStorage.setItem(CONTACTS,JSON.stringify(contacts))}
+function save(){localStorage.setItem(KEY,JSON.stringify(parcels));localStorage.setItem(ARCHIVE,JSON.stringify(archiveByDate));localStorage.setItem(CONTACTS,JSON.stringify(contacts));localStorage.setItem(CONTACT_DELETED,JSON.stringify(deletedContacts))}
 function normPhone(v){return String(v||'').replace(/[۰-۹]/g,d=>String('۰۱۲۳۴۵۶۷۸۹'.indexOf(d))).replace(/[^0-9+]/g,'').replace(/^0098/,'+98')}
 function upsertDeliveryContact(name,phone){
   const ph=normPhone(phone), n=String(name||'').trim();
   if(!ph || ph.replace(/\D/g,'').length<8) return false;
-  const existing=contacts.find(c=>normPhone(c.phone)===ph);
+  const clean=ph.replace(/\D/g,''); delete deletedContacts[clean]; const existing=contacts.find(c=>normPhone(c.phone)===ph);
   if(existing){
     let changed=false;
     if(n && !String(existing.name||'').trim()){ existing.name=n; changed=true; }
@@ -853,14 +852,21 @@ function normalizeContacts(list){
   const m=new Map();
   (list||[]).forEach(c=>{
     if(!c) return; const phone=normPhone(c.phone); if(!phone) return;
-    const id=String(c.id||phone), x={...c,id,phone};
+    const id=String(c.id||phone), x={...c,id,phone,updatedAt:c.updatedAt||c.createdAt||''};
     const key=phone.replace(/\D/g,''); const prev=m.get(key);
-    if(!prev || (!String(prev.name||'').trim() && String(x.name||'').trim())) m.set(key,x);
+    if(!prev){m.set(key,x);return;}
+    const pt=Date.parse(prev.updatedAt||'')||0, xt=Date.parse(x.updatedAt||'')||0;
+    const newer=xt>pt?x:(pt>xt?prev:x);
+    if(!String(newer.name||'').trim() && (String(prev.name||'').trim()||String(x.name||'').trim())) newer={...newer,name:String(prev.name||x.name||'')};
+    m.set(key,newer);
   });
   return [...m.values()];
 }
+function mergeContactsLists(localList,remoteList){
+  return normalizeContacts([...(localList||[]),...(remoteList||[])]);
+}
 function contactDeviceId(){let id=localStorage.getItem('contacts_device_id');if(!id){id='C-'+Date.now()+'-'+Math.random().toString(36).slice(2,8);localStorage.setItem('contacts_device_id',id)}return id}
-function contactsPayload(){return JSON.stringify({action:'saveContacts',version:1,device:contactDeviceId(),contacts:normalizeContacts(contacts)});}
+function contactsPayload(){return JSON.stringify({action:'saveContacts',version:1,device:contactDeviceId(),contacts:normalizeContacts(contacts),deletedContacts:deletedContacts});}
 async function postContactsServer(){
   if(contactsSaveBusy){contactsSaveQueued=true;return;}
   contactsSaveBusy=true;
@@ -879,11 +885,40 @@ function pullContactsFromServer(showToast=true){
   const cb='__contactsSync_'+Date.now()+'_'+Math.floor(Math.random()*100000);
   const script=document.createElement('script'); let done=false;
   const finish=()=>{if(done)return;done=true;script.remove();try{delete window[cb]}catch(e){window[cb]=undefined}};
-  window[cb]=function(data){try{if(!data||data.ok!==true)throw new Error('bad');const remote=normalizeContacts(data.contacts||[]);const before=JSON.stringify(contacts);contacts=normalizeContacts(remote.length?remote:contacts);localStorage.setItem(CONTACTS,JSON.stringify(contacts));if(window.bottomView==='contacts')renderContacts();if(showToast)toast(before!==JSON.stringify(contacts)?'مخاطبین از سرور به‌روزرسانی شد. ✓':'مخاطبین به‌روز هستند. ✓');}catch(e){if(showToast)toast('دریافت مخاطبین از سرور انجام نشد.')}finally{finish()}};
+  window[cb]=function(data){try{
+    if(!data||data.ok!==true)throw new Error('bad');
+    const remoteDeleted=data.deletedContacts||{};
+    Object.keys(remoteDeleted).forEach(ph=>{
+      const t=Date.parse(remoteDeleted[ph])||0;
+      const old=Date.parse(deletedContacts[ph]||'')||0;
+      if(t>=old) deletedContacts[ph]=remoteDeleted[ph];
+    });
+    contacts=contacts.filter(c=>{
+      const ph=normPhone(c.phone).replace(/\D/g,'');
+      const dt=Date.parse(deletedContacts[ph]||'')||0;
+      const ct=Date.parse(c.updatedAt||c.createdAt||'')||0;
+      return !(dt && dt>=ct);
+    });
+    const remote=normalizeContacts(data.contacts||[]).filter(c=>{
+      const ph=normPhone(c.phone).replace(/\D/g,'');
+      const dt=Date.parse(deletedContacts[ph]||'')||0;
+      const ct=Date.parse(c.updatedAt||c.createdAt||'')||0;
+      return !(dt && dt>=ct);
+    });
+    const before=JSON.stringify(normalizeContacts(contacts));
+    contacts=mergeContactsLists(contacts,remote);
+    localStorage.setItem(CONTACTS,JSON.stringify(contacts));
+    localStorage.setItem(CONTACT_DELETED,JSON.stringify(deletedContacts));
+    const changed=before!==JSON.stringify(normalizeContacts(contacts));
+    if(changed)queueContactsServerSave();
+    if(window.bottomView==='contacts')renderContacts();
+    if(showToast)toast(changed?'مخاطبین با سرور ادغام و به‌روزرسانی شد. ✓':'مخاطبین به‌روز هستند. ✓');
+  }catch(e){if(showToast)toast('دریافت مخاطبین از سرور انجام نشد.')}finally{finish()}};
   script.onerror=()=>{finish();if(showToast)toast('ارتباط با سرور مخاطبین برقرار نشد.');};
-  script.src=CONTACTS_API+'?action=pullContacts&callback='+encodeURIComponent(cb)+'&version=1&_='+Date.now();
+  script.src=CONTACTS_API+'?action=pullContacts&callback='+encodeURIComponent(cb)+'&version=2&_='+Date.now();
   document.body.appendChild(script);
 }
+
 
 const pickupText=()=>`سلام، وقت بخیر 🌷\nبسته پستی شما رسید.\nلطفاً برای دریافت بسته خود به دفتر پیشخوان چمن سلطان مراجعه فرمایید.\n📞 ۰۶۶۴۳۳۶۵۱۲۷\nبا تشکر`;
 function openSms(c){if(!c)return;const phone=normPhone(c.phone);const body=pickupText();location.href=`sms:${phone}?body=${encodeURIComponent(body)}`;}
@@ -925,11 +960,15 @@ function deleteContact(id){
   const c=contacts.find(x=>String(x.id)===String(id));
   if(!c)return;
   if(!confirm(`مخاطب «${c.name||'بدون نام'}» حذف شود؟`))return;
+  const ph=normPhone(c.phone).replace(/\D/g,'');
+  const deletedAt=nowIso();
+  if(ph) deletedContacts[ph]=deletedAt;
   contacts=contacts.filter(x=>String(x.id)!==String(id));
   localStorage.setItem(CONTACTS,JSON.stringify(contacts));
+  localStorage.setItem(CONTACT_DELETED,JSON.stringify(deletedContacts));
   queueContactsServerSave();
   renderContacts();
-  toast('مخاطب حذف شد و حذف آن در سرور ثبت می‌شود.');
+  toast('مخاطب حذف شد و حذف آن در سرور نیز ثبت می‌شود.');
 }
 
 function contactIcon(k){
@@ -979,9 +1018,10 @@ function renderContacts(){
 function editContact(id){const c=contacts.find(x=>String(x.id)===String(id));if(!c)return;$('#contactTitle').textContent='ویرایش مخاطب';$('#contactName').value=c.name||'';$('#contactPhone').value=c.phone||'';$('#saveContact').dataset.edit=id;openModal('contactModal')}
 function archiveKey(iso){const d=iso?new Date(iso):new Date();if(Number.isNaN(d.getTime()))return localDateKey(new Date());return localDateKey(d)}
 function localDateKey(d){const x=d instanceof Date?d:new Date(d);const y=x.getFullYear(),m=String(x.getMonth()+1).padStart(2,'0'),day=String(x.getDate()).padStart(2,'0');return `${y}-${m}-${day}`}
+function currentMonthKey(){const d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`}
 function refreshArchive(){rebuildArchive();localStorage.setItem(ARCHIVE,JSON.stringify(archiveByDate));return archiveSummary()}
-function rebuildArchive(){const next={};parcels.filter(p=>p.delivered&&p.deliveredAt).forEach(p=>{const k=archiveKey(p.deliveredAt);(next[k]??=[]).push(p.id)});archiveByDate=next;localStorage.setItem(ARCHIVE,JSON.stringify(archiveByDate))}
-function archiveSummary(){return Object.entries(archiveByDate).sort((a,b)=>b[0].localeCompare(a[0])).map(([d,ids])=>({date:d,count:ids.length}))}
+function rebuildArchive(){const month=currentMonthKey(),next={};parcels.filter(p=>p.delivered&&p.deliveredAt).forEach(p=>{const k=archiveKey(p.deliveredAt);if(k.slice(0,7)!==month)return;(next[k]??=[]).push(p.id)});archiveByDate=next;localStorage.setItem(ARCHIVE,JSON.stringify(archiveByDate))}
+function archiveSummary(){const month=currentMonthKey();return Object.entries(archiveByDate).filter(([d])=>d.slice(0,7)===month).sort((a,b)=>b[0].localeCompare(a[0])).map(([d,ids])=>({date:d,count:ids.length}))}
 function toast(t){const el=$('#toast');el.textContent=t;el.classList.add('show');clearTimeout(window.__toast);window.__toast=setTimeout(()=>el.classList.remove('show'),2600)}
 function esc(v){return String(v??'').replace(/[&<>'"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[m]))}
 function faDate(d){try{return new Intl.DateTimeFormat('fa-IR',{year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date(d))}catch(e){return d}}
@@ -1007,7 +1047,7 @@ function render(){
     const q=$('#search').value.trim().toLowerCase();
     shown=parcels.filter(p=>{if(p.deleted)return false;const hay=[p.barcode,p.name,p.address,p.receiver,p.phone].join(' ').toLowerCase();return !q||hay.includes(q)}).sort((a,b)=>new Date(b.deliveredAt||b.createdAt||0)-new Date(a.deliveredAt||a.createdAt||0));
   }
-  if(view==='delivered') shown=parcels.filter(p=>!p.deleted&&p.delivered).sort((a,b)=>new Date(b.deliveredAt||0)-new Date(a.deliveredAt||0));
+  if(view==='delivered'){const today=localDateKey(new Date());shown=parcels.filter(p=>!p.deleted&&p.delivered&&archiveKey(p.deliveredAt)===today).sort((a,b)=>new Date(b.deliveredAt||0)-new Date(a.deliveredAt||0));}
   if(view==='archive') shown=arr.filter(p=>p.delivered);
   $('#listTitle').textContent=view==='all'?'کل مرسولات':view==='waiting'?'مرسولات در انتظار':view==='delivered'?'مرسوله‌های تحویل‌شده':view==='archive'?'بایگانی روزانه':'همه مرسولات';
   let html='';
@@ -1036,7 +1076,7 @@ function renderMultiDelivery(base){const box=$('#multiDeliveryBox'),list=$('#mul
 function clearSig(){const c=$('#signatureCanvas'),ctx=c.getContext('2d');ctx.clearRect(0,0,c.width,c.height);signatureDirty=false}
 function setupSignature(){const c=$('#signatureCanvas'),ctx=c.getContext('2d');let drawing=false;function pos(e){const r=c.getBoundingClientRect(),pt=e.touches?e.touches[0]:e;return {x:(pt.clientX-r.left)*c.width/r.width,y:(pt.clientY-r.top)*c.height/r.height}}function start(e){e.preventDefault();drawing=true;const p=pos(e);ctx.beginPath();ctx.moveTo(p.x,p.y)}function move(e){if(!drawing)return;e.preventDefault();const p=pos(e);ctx.lineTo(p.x,p.y);ctx.strokeStyle='#173b67';ctx.lineWidth=5;ctx.lineCap='round';ctx.stroke();signatureDirty=true}function end(){drawing=false}['mousedown','touchstart'].forEach(x=>c.addEventListener(x,start,{passive:false}));['mousemove','touchmove'].forEach(x=>c.addEventListener(x,move,{passive:false}));['mouseup','mouseleave','touchend'].forEach(x=>c.addEventListener(x,end))}
 function saveParcel(){const barcode=$('#barcodeInput').value.replace(/\D/g,'');if(barcode.length<15||barcode.length>24)return toast('بارکد باید بین ۱۵ تا ۲۴ رقم باشد.');const dup=parcels.find(p=>!p.deleted&&p.barcode===barcode&&p.id!==editingId);if(dup)return toast('این بارکد قبلاً ثبت شده است.');const now=nowIso();if(editingId){const p=parcels.find(x=>x.id===editingId);if(!p)return;p.barcode=barcode;p.name=$('#nameInput').value.trim();p.address=$('#addressInput').value.trim();p.deleted=false;p.updatedAt=now}else parcels.push({id:crypto.randomUUID?crypto.randomUUID():String(Date.now()),barcode,name:$('#nameInput').value.trim(),address:$('#addressInput').value.trim(),createdAt:now,updatedAt:now,delivered:false,deleted:false});save();closeModal('parcelModal');render();toast('مرسوله ذخیره شد.')}
-function confirmDelivery(){const p=parcels.find(x=>x.id===deliveryId);const receiver=$('#receiverInput').value.trim(),phone=$('#phoneInput').value.trim();if(!p)return;if(!receiver||!phone)return toast('نام تحویل‌گیرنده و شماره تماس را کامل کنید.');if(!signatureDirty)return toast('لطفاً امضا را ثبت کنید.');let selectedIds=[p.id];$$('.multi-delivery-check:checked').forEach(x=>{if(x.value&&!selectedIds.includes(x.value))selectedIds.push(x.value)});const targets=parcels.filter(x=>selectedIds.includes(x.id)&&!x.deleted&&!x.delivered);if(!targets.length)return toast('مرسوله‌ای برای ثبت تحویل انتخاب نشده است.');const now=nowIso(),signature=$('#signatureCanvas').toDataURL('image/png');const f=$('#photoInput').files[0];const applyDelivery=(photo)=>{targets.forEach(t=>{t.delivered=true;t.receiver=receiver;t.phone=phone;t.deliveredAt=now;t.archiveDate=archiveKey(t.deliveredAt);t.signature=signature;t.updatedAt=now;t.deleted=false;if(photo)t.photo=photo});/* ثبت خودکار مخاطب مستقل از مرسوله */if(upsertDeliveryContact(receiver,phone)){localStorage.setItem(CONTACTS,JSON.stringify(contacts));queueContactsServerSave();}save();finishDelivery(targets.length)};if(f){const r=new FileReader();r.onload=()=>applyDelivery(r.result);r.readAsDataURL(f)}else applyDelivery('')}
+function confirmDelivery(){const p=parcels.find(x=>x.id===deliveryId);const receiver=$('#receiverInput').value.trim(),phone=$('#phoneInput').value.trim();if(!p)return;if(!receiver||!phone)return toast('نام تحویل‌گیرنده و شماره تماس را کامل کنید.');if(!signatureDirty)return toast('لطفاً امضا را ثبت کنید.');let selectedIds=[p.id];$$('.multi-delivery-check:checked').forEach(x=>{if(x.value&&!selectedIds.includes(x.value))selectedIds.push(x.value)});const targets=parcels.filter(x=>selectedIds.includes(x.id)&&!x.deleted&&!x.delivered);if(!targets.length)return toast('مرسوله‌ای برای ثبت تحویل انتخاب نشده است.');const now=nowIso(),signature=$('#signatureCanvas').toDataURL('image/png');const f=$('#photoInput').files[0];const applyDelivery=(photo)=>{targets.forEach(t=>{t.delivered=true;t.receiver=receiver;t.phone=phone;t.deliveredAt=now;t.archiveDate=archiveKey(t.deliveredAt);t.signature=signature;t.updatedAt=now;t.deleted=false;if(photo)t.photo=photo});/* ثبت خودکار مخاطب مستقل از مرسوله */if(upsertDeliveryContact(receiver,phone)){contacts=normalizeContacts(contacts);localStorage.setItem(CONTACTS,JSON.stringify(contacts));queueContactsServerSave();}save();finishDelivery(targets.length)};if(f){const r=new FileReader();r.onload=()=>applyDelivery(r.result);r.readAsDataURL(f)}else applyDelivery('')}
 function finishDelivery(count=1){refreshArchive();save();closeModal('deliveryModal');filter='done';render();toast(count>1?`${count} مرسوله هم‌زمان تحویل شد؛ یک شماره تماس و یک امضا برای همه ثبت شد.`:'تحویل با تاریخ و ساعت خودکار ثبت شد و در بایگانی روز قرار گرفت.')}
 function backup(){rebuildArchive();const data={version:3,exportedAt:nowIso(),profile,parcels,archiveByDate};const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='پشتیبان-مرسولات-'+new Date().toISOString().slice(0,10)+'.json';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),500);toast('فایل پشتیبان آماده شد.')}
 function restore(file){const r=new FileReader();r.onload=()=>{try{const d=JSON.parse(r.result);if(!Array.isArray(d.parcels))throw 0;let added=0;d.parcels.forEach(x=>{if(x.barcode&&!parcels.some(p=>p.barcode===x.barcode)){parcels.push(x);added++}});if(d.profile)profile={...profile,...d.profile};if(d.archiveByDate&&typeof d.archiveByDate==='object')archiveByDate={...archiveByDate,...d.archiveByDate};rebuildArchive();save();localStorage.setItem(PROFILE,JSON.stringify(profile));updateProfile();render();toast(`${added} مرسوله بازیابی شد؛ اطلاعات قبلی حفظ شد.`)}catch(e){toast('فایل پشتیبان معتبر نیست.')}};r.readAsText(file)}
@@ -1442,7 +1482,7 @@ window.addEventListener('load',function(){
     const ref=e.target.closest('#refreshContacts');if(ref){pullContactsFromServer(true);return;}
     const sms=e.target.closest('[data-sms-contact]');if(sms){const c=contacts.find(x=>String(x.id)===String(sms.dataset.smsContact));openSms(c);return}
     const ed=e.target.closest('[data-edit-contact]');if(ed){editContact(ed.dataset.editContact);return}
-    if(e.target.closest('#saveContact')){const n=$('#contactName').value.trim(),ph=normPhone($('#contactPhone').value),id=$('#saveContact').dataset.edit;if(!n||ph.replace(/\D/g,'').length<8){toast('نام و شماره تماس را کامل وارد کنید.');return}const cleanPh=String(ph).replace(/\D/g,'');const dup=contacts.find(c=>String(normPhone(c.phone)).replace(/\D/g,'')===cleanPh&&String(c.id)!==String(id||''));if(dup){toast('این شماره قبلاً ثبت شده است.');return}if(id){const c=contacts.find(x=>String(x.id)===String(id));if(c){c.name=n;c.phone=ph;c.updatedAt=nowIso()}}else contacts.unshift({id:crypto.randomUUID?crypto.randomUUID():String(Date.now()+Math.random()),name:n,phone:ph,createdAt:nowIso(),updatedAt:nowIso()});localStorage.setItem(CONTACTS,JSON.stringify(contacts));queueContactsServerSave();closeModal('contactModal');toast(id?'مخاطب ویرایش شد و ذخیره سروری در پس‌زمینه انجام می‌شود.':'مخاطب ذخیره شد و ارسال به سرور در پس‌زمینه انجام می‌شود.');if(window.bottomView==='contacts')render();return}
+    if(e.target.closest('#saveContact')){const n=$('#contactName').value.trim(),ph=normPhone($('#contactPhone').value),id=$('#saveContact').dataset.edit;if(!n||ph.replace(/\D/g,'').length<8){toast('نام و شماره تماس را کامل وارد کنید.');return}const cleanPh=String(ph).replace(/\D/g,'');const dup=contacts.find(c=>String(normPhone(c.phone)).replace(/\D/g,'')===cleanPh&&String(c.id)!==String(id||''));if(dup){toast('این شماره قبلاً ثبت شده است.');return}if(id){const c=contacts.find(x=>String(x.id)===String(id));if(c){const oldPh=normPhone(c.phone).replace(/\D/g,'');if(oldPh&&oldPh!==cleanPh)deletedContacts[oldPh]=nowIso();c.name=n;c.phone=ph;c.updatedAt=nowIso();delete deletedContacts[cleanPh];}}else {contacts.unshift({id:crypto.randomUUID?crypto.randomUUID():String(Date.now()+Math.random()),name:n,phone:ph,createdAt:nowIso(),updatedAt:nowIso()});delete deletedContacts[cleanPh];}contacts=normalizeContacts(contacts);localStorage.setItem(CONTACT_DELETED,JSON.stringify(deletedContacts));localStorage.setItem(CONTACTS,JSON.stringify(contacts));queueContactsServerSave();closeModal('contactModal');toast(id?'مخاطب ویرایش شد و ذخیره سروری انجام می‌شود.':'مخاطب ذخیره شد و ارسال سروری انجام می‌شود.');if(window.bottomView==='contacts')render();return}
     if(e.target.closest('#sendSelected')){const ids=$$('.contact-check:checked').map(x=>String(x.value));const selected=ids.map(id=>contacts.find(x=>String(x.id)===id)).filter(Boolean);sendSelectedContacts();return}
   });
   document.addEventListener('change',e=>{if(e.target.matches('#selectContactsAll')){window.selectedContactIds=window.selectedContactIds instanceof Set?window.selectedContactIds:new Set();$$('.contact-check').forEach(x=>{const id=String(x.value);if(e.target.checked)window.selectedContactIds.add(id);else window.selectedContactIds.delete(id);});const c=$('#selectedCount');if(c)c.textContent=`${window.selectedContactIds.size}/${contacts.length}`;}if(e.target.matches('.contact-check')){window.selectedContactIds=window.selectedContactIds instanceof Set?window.selectedContactIds:new Set();const id=String(e.target.value);if(e.target.checked)window.selectedContactIds.add(id);else window.selectedContactIds.delete(id);const c=$('#selectedCount');if(c)c.textContent=`${window.selectedContactIds.size}/${contacts.length}`;}});
@@ -1479,7 +1519,7 @@ window.addEventListener('load',function(){
       window.scrollTo({top:0,behavior:'smooth'});
       return;
     }
-    if(view==='contacts'){if(typeof render==='function')render();window.scrollTo({top:0,behavior:'smooth'});return;} if(typeof filter!=='undefined') filter=(view==='waiting'?'waiting':(view==='delivered'||view==='archive'?'done':'all'));
+    if(view==='contacts'){if(typeof render==='function')render();if(typeof pullContactsFromServer==='function')pullContactsFromServer(false);window.scrollTo({top:0,behavior:'smooth'});return;} if(typeof filter!=='undefined') filter=(view==='waiting'?'waiting':(view==='delivered'||view==='archive'?'done':'all'));
     if(typeof render==='function')render();
     if(title){title.textContent=view==='all'?'کل مرسولات':view==='waiting'?'مرسولات در انتظار':view==='delivered'?'مرسولات تحویل‌شده':view==='archive'?'بایگانی روزانه':view==='contacts'?'دفترچه مخاطبین':'کل مرسولات';}
     window.scrollTo({top:0,behavior:'smooth'});
