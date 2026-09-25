@@ -1016,7 +1016,14 @@ function render(){
   let shown=arr;
   if(view==='all') {
     const q=$('#search').value.trim().toLowerCase();
-    shown=parcels.filter(p=>{if(p.deleted)return false;const hay=[p.barcode,p.name,p.address,p.receiver,p.phone].join(' ').toLowerCase();return !q||hay.includes(q)}).sort((a,b)=>new Date(b.deliveredAt||b.createdAt||0)-new Date(a.deliveredAt||a.createdAt||0));
+    const today=localDateKey(new Date());
+    shown=parcels.filter(p=>{
+      if(p.deleted)return false;
+      const deliveredToday=!!p.delivered && !!p.deliveredAt && archiveKey(p.deliveredAt)===today;
+      if(p.delivered && !deliveredToday)return false;
+      const hay=[p.barcode,p.name,p.address,p.receiver,p.phone].join(' ').toLowerCase();
+      return !q||hay.includes(q);
+    }).sort((a,b)=>new Date(b.deliveredAt||b.createdAt||0)-new Date(a.deliveredAt||a.createdAt||0));
   }
   if(view==='delivered'){const today=localDateKey(new Date());shown=parcels.filter(p=>!p.deleted&&p.delivered&&archiveKey(p.deliveredAt)===today).sort((a,b)=>new Date(b.deliveredAt||0)-new Date(a.deliveredAt||0));}
   if(view==='archive'){const q=$('#search').value.trim().toLowerCase();shown=parcels.filter(p=>{if(p.deleted||!p.delivered)return false;const hay=[p.barcode,p.name,p.address,p.receiver,p.phone].join(' ').toLowerCase();return !q||hay.includes(q)}).sort((a,b)=>new Date(b.deliveredAt||0)-new Date(a.deliveredAt||0));}
@@ -1074,49 +1081,113 @@ async function startLiveScan(mode='save'){
   if(location.protocol!=='https:'&&location.hostname!=='localhost'){status.textContent='برای استفاده از دوربین، سایت باید با HTTPS باز شود.';return;}
   if(!navigator.mediaDevices?.getUserMedia){status.textContent='مرورگر فعلی API دوربین را در اختیار صفحه قرار نمی‌دهد.';return;}
   try{
-    scanStream=await navigator.mediaDevices.getUserMedia({audio:false,video:{facingMode:{ideal:'environment'},width:{ideal:1280},height:{ideal:720}}});
-    video.srcObject=scanStream;await video.play();scanActive=true;
-    status.textContent='دوربین فعال شد؛ بارکد را داخل کادر قرار دهید.';
-    if('BarcodeDetector' in globalThis&&typeof BarcodeDetector.getSupportedFormats==='function'){
+    // اول دوربین را بدون محدودیت سخت باز می‌کنیم تا روی مدل‌های مختلف سامسونگ/کروم شکست نخورد.
+    try{
+      scanStream=await navigator.mediaDevices.getUserMedia({audio:false,video:{facingMode:{ideal:'environment'},width:{ideal:1280},height:{ideal:720}}});
+    }catch(_e){
+      scanStream=await navigator.mediaDevices.getUserMedia({audio:false,video:true});
+    }
+    video.srcObject=scanStream;
+    await video.play();
+    await new Promise(r=>setTimeout(r,250));
+    scanActive=true;
+    status.textContent='✓ دوربین فعال است؛ QR یا بارکد را داخل کادر نگه دارید…';
+
+    let nativeStarted=false, zxingStarted=false;
+
+    // موتور داخلی مرورگر: سریع‌ترین مسیر برای QR و بارکد در Chrome/Android.
+    if('BarcodeDetector' in globalThis){
       try{
-        const wanted=['qr_code','code_128','code_39','code_93','codabar','ean_13','ean_8','itf','upc_a','upc_e','data_matrix','pdf417','aztec'];
-        const available=await BarcodeDetector.getSupportedFormats();
-        const formats=wanted.filter(x=>available.includes(x));
+        let formats=['qr_code','code_128','code_39','code_93','codabar','ean_13','ean_8','itf','upc_a','upc_e','data_matrix','pdf417','aztec'];
+        if(typeof BarcodeDetector.getSupportedFormats==='function'){
+          const available=await BarcodeDetector.getSupportedFormats();
+          formats=formats.filter(x=>available.includes(x));
+        }
         if(formats.length){
-          const detector=new BarcodeDetector({formats});let lastFrame=0;
+          const detector=new BarcodeDetector({formats});
+          nativeStarted=true;
+          let lastFrame=0;
           const detectLoop=async ts=>{
             if(!scanActive)return;
-            if(ts-lastFrame<90){requestAnimationFrame(detectLoop);return;}
+            if(ts-lastFrame<80){requestAnimationFrame(detectLoop);return;}
             lastFrame=ts;
             try{
-              const results=await detector.detect(video);
-              if(results?.length){
-                const value=String(results[0].rawValue||'').trim();
-                if(value&&value!==scanLast){scanLast=value;handleScanResult(value);return;}
+              if(video.readyState>=2&&video.videoWidth>0&&video.videoHeight>0){
+                const results=await detector.detect(video);
+                if(results?.length){
+                  for(const item of results){
+                    const value=String(item.rawValue||'').trim();
+                    if(value&&value!==scanLast){scanLast=value;handleScanResult(value);return;}
+                  }
+                }
               }
             }catch(_e){}
             requestAnimationFrame(detectLoop);
           };
-          requestAnimationFrame(detectLoop);return;
+          requestAnimationFrame(detectLoop);
         }
-      }catch(_e){}
+      }catch(_e){nativeStarted=false;}
     }
-    if(window.ZXingBrowser?.BrowserMultiFormatReader){
-      scanReader=new ZXingBrowser.BrowserMultiFormatReader();
-      if(typeof scanReader.decodeFromStream==='function'){
-        scanControls=await scanReader.decodeFromStream(scanStream,video,(result)=>{
+
+    // ZXing را هم هم‌زمان فعال می‌کنیم؛ در بعضی گوشی‌ها BarcodeDetector حاضر است
+    // ولی از روی فریم زنده QR را تشخیص نمی‌دهد. این مسیر آن مشکل را پوشش می‌دهد.
+    const startZXing=async()=>{
+      try{
+        if(!window.ZXingBrowser?.BrowserMultiFormatReader){
+          await loadZXingFallback();
+        }
+        if(!scanActive||!window.ZXingBrowser?.BrowserMultiFormatReader)return;
+        scanReader=new ZXingBrowser.BrowserMultiFormatReader();
+        const onResult=(result)=>{
           if(!scanActive||!result)return;
           const value=(result.getText?result.getText():result.text||'').trim();
           if(value&&value!==scanLast){scanLast=value;handleScanResult(value);}
-        });return;
-      }
-    }
-    status.textContent='دوربین فعال است، اما موتور تشخیص بارکد بارگذاری نشده است.';
+        };
+        if(typeof scanReader.decodeFromVideoElement==='function'){
+          zxingStarted=true;
+          scanControls=await scanReader.decodeFromVideoElement(video,onResult);
+        }else if(typeof scanReader.decodeFromVideoDevice==='function'){
+          zxingStarted=true;
+          scanControls=await scanReader.decodeFromVideoDevice(undefined,video,onResult);
+        }else if(typeof scanReader.decodeFromConstraints==='function'){
+          zxingStarted=true;
+          scanControls=await scanReader.decodeFromConstraints({video:{facingMode:{ideal:'environment'}}},video,onResult);
+        }
+      }catch(_e){}
+    };
+    // ZXing را برای اسکن پیوسته و قابل اتکای QR/بارکد فعال می‌کنیم.
+    // BarcodeDetector هم‌زمان به‌عنوان مسیر سریع پشتیبان باقی می‌ماند.
+    startZXing();
+    setTimeout(()=>{
+      if(scanActive&&!nativeStarted&&!zxingStarted) status.textContent='دوربین فعال است؛ موتور تشخیص بارکد در دسترس نیست. اینترنت را روشن کنید و دوباره «شروع اسکن زنده» را بزنید.';
+    },1800);
   }catch(e){
     console.error('Live scanner error:',e);scanActive=false;
     try{scanControls?.stop?.()}catch(_e){}try{scanReader?.reset?.()}catch(_e){}
-    scanControls=null;scanReader=null;status.textContent=scanErrorMessage(e);
+    scanControls=null;scanReader=null;
+    if(scanStream){scanStream.getTracks().forEach(t=>t.stop());scanStream=null}
+    status.textContent=scanErrorMessage(e);
   }
+}
+
+async function loadZXingFallback(){
+  if(window.ZXingBrowser?.BrowserMultiFormatReader)return true;
+  const urls=[
+    'https://cdn.jsdelivr.net/npm/@zxing/browser@0.2.1/umd/zxing-browser.min.js',
+    'https://unpkg.com/@zxing/browser@0.2.1/umd/zxing-browser.min.js'
+  ];
+  for(const src of urls){
+    try{
+      await new Promise((resolve,reject)=>{
+        const old=document.querySelector('script[data-zxing-fallback]');
+        if(old)old.remove();
+        const sc=document.createElement('script');sc.src=src;sc.async=true;sc.dataset.zxingFallback='1';
+        sc.onload=()=>resolve();sc.onerror=reject;document.head.appendChild(sc);
+      });
+      if(window.ZXingBrowser?.BrowserMultiFormatReader)return true;
+    }catch(_e){}
+  }
+  return false;
 }
 function handleScanResult(value){
   if(!scanActive)return;
