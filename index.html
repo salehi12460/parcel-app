@@ -82,6 +82,33 @@ body.modal-open #settingsPanel{display:none!important}
 /* عنوان کوچک و متناسب با عملیات صفحه */
 #listHead{justify-content:flex-start!important;min-height:28px;margin-top:10px;margin-bottom:6px;}
 #listHead #listTitle{display:block!important;margin:0!important;font-size:13px!important;font-weight:800!important;color:var(--muted)!important;line-height:1.4!important;text-align:left!important;}
+
+/* طراحی فشرده و بدون اسکرول برای پنجره ثبت تحویل */
+.delivery-sheet{max-height:min(90vh,650px)!important;overflow:hidden!important;padding:14px 15px 13px!important}
+.delivery-person{display:grid;grid-template-columns:1fr 96px;gap:12px;align-items:center;margin:2px 0 8px}
+.delivery-fields{min-width:0;display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.delivery-fields .field:first-child{grid-column:1/-1}
+.delivery-fields .field{gap:4px}
+.delivery-fields .field label{font-size:10px}
+.delivery-fields .field input{height:40px;padding:8px 10px;border-radius:11px;font-size:12px}
+.delivery-avatar{width:94px;height:94px;border-radius:50%;overflow:hidden;background:#172536;border:3px solid #fff;box-shadow:0 4px 14px rgba(0,0,0,.16);position:relative;justify-self:end}
+.delivery-avatar video{width:100%;height:100%;display:block;object-fit:cover;transform:scaleX(-1);background:#111}
+.delivery-avatar span{position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,.55);color:#fff;font-size:7px;text-align:center;padding:3px 1px}
+.delivery-camera-status{grid-column:1/-1;font-size:9px;color:var(--muted);line-height:1.4;min-height:13px}
+.delivery-sign{margin-top:6px}
+.sign-title{display:flex;align-items:center;justify-content:space-between;margin-bottom:5px}
+.sign-title span{font-size:10px;font-weight:800;color:#445b76}
+.sign-title .mainbtn{height:30px!important;padding:0 10px!important;font-size:9px!important;border-radius:9px!important}
+.delivery-sign .signature-wrap{height:154px}
+.delivery-sign #signatureCanvas{height:154px;width:100%;display:block}
+.delivery-actions{margin-top:9px!important;grid-template-columns:1fr 1.4fr!important}
+@media(max-width:390px){
+ .delivery-sheet{padding:12px!important}
+ .delivery-person{grid-template-columns:1fr 82px;gap:9px}
+ .delivery-avatar{width:80px;height:80px}
+ .delivery-fields .field input{height:37px;font-size:11px}
+ .delivery-sign .signature-wrap,.delivery-sign #signatureCanvas{height:135px}
+}
 </style>
 <style id="readability-fit-v17">
 /* نسخه خوانا و فیت گوشی */
@@ -800,7 +827,7 @@ body[data-bottom-view="archive"] #listHead h2::after{content:' روزانه';}
   <button type="button" class="bottom-item" data-bottom="logout"><span class="bottom-icon">⇥</span><span>خروج</span></button>
 </nav>
 
-<div class="modal" id="deliveryModal"><div class="sheet"><div class="sheet-head"><h3>ثبت نهایی تحویل</h3><div style="display:flex;align-items:center;gap:6px"><button type="button" id="multiSelectToggle" class="mainbtn gray" style="height:36px;padding:0 10px;font-size:11px">☑ انتخاب چند مورد</button><button class="close" data-close="deliveryModal">×</button></div></div><p class="hint">اگر یک نفر چند مرسوله دارد، می‌توانید همه مرسوله‌ها را هم‌زمان تحویل بزنید؛ نام، شماره تماس و یک امضا برای همه انتخاب‌شده‌ها ثبت می‌شود.</p><div id="multiDeliveryBox" class="multi-delivery" style="display:none"><div class="multi-title">📦 انتخاب چند مرسوله <span id="multiSelectedCount">(۱ انتخاب)</span></div><div class="hint">هر مرسوله را مستقل انتخاب کنید؛ لازم نیست نام‌ها یکسان باشند.</div><div id="multiDeliveryList" class="multi-list"></div></div><div class="formgrid"><div class="field full"><label>نام و نام خانوادگی تحویل‌گیرنده *</label><input id="receiverInput" placeholder="مثلاً صالح کوتاه"></div><div class="field"><label>شماره تماس *</label><input id="phoneInput" inputmode="tel" placeholder="مثلاً 0912xxxxxxxx"></div><div class="field full"><label>عکس تحویل‌دهنده (دوربین جلو)</label><div style="position:relative;border-radius:14px;overflow:hidden;background:#111;min-height:180px"><video id="deliveryCamera" playsinline autoplay muted style="width:100%;display:block;max-height:280px;object-fit:cover;transform:scaleX(-1)"></video><canvas id="deliveryPhotoCanvas" hidden></canvas><div id="deliveryCameraStatus" class="hint" style="position:absolute;bottom:6px;right:8px;left:8px;background:rgba(0,0,0,.55);color:#fff;border-radius:8px;padding:6px;text-align:center">در حال آماده‌سازی دوربین جلو...</div></div></div><div class="field full"><label>امضا *</label><div class="signature-wrap"><canvas id="signatureCanvas" width="600" height="250"></canvas></div><button class="mainbtn gray" id="clearSignature" style="margin-top:7px;height:38px">پاک کردن امضا</button></div></div><div class="sheet-actions"><button class="mainbtn gray" data-close="deliveryModal">انصراف</button><button class="mainbtn green" id="confirmDelivery">ثبت تحویل</button></div></div></div>
+<div class="modal" id="deliveryModal"><div class="sheet delivery-sheet"><div class="sheet-head"><h3>ثبت نهایی تحویل</h3><div style="display:flex;align-items:center;gap:6px"><button type="button" id="multiSelectToggle" class="mainbtn gray" style="height:34px;padding:0 9px;font-size:10px">☑ چند مرسوله</button><button class="close" data-close="deliveryModal">×</button></div></div><div class="delivery-person"><div class="delivery-fields"><div class="field"><label>نام و نام خانوادگی *</label><input id="receiverInput" placeholder="نام تحویل‌گیرنده"></div><div class="field"><label>شماره تماس *</label><input id="phoneInput" inputmode="tel" placeholder="مثلاً 0912xxxxxxxx"></div><div id="deliveryCameraStatus" class="delivery-camera-status">دوربین جلو در حال آماده‌سازی...</div></div><div class="delivery-avatar"><video id="deliveryCamera" playsinline autoplay muted></video><canvas id="deliveryPhotoCanvas" hidden></canvas><span>تصویر تحویل‌دهنده</span></div></div><div id="multiDeliveryBox" class="multi-delivery" style="display:none"><div class="multi-title">📦 انتخاب چند مرسوله <span id="multiSelectedCount">(۱ انتخاب)</span></div><div class="hint">مرسوله‌های موردنظر را انتخاب کنید.</div><div id="multiDeliveryList" class="multi-list"></div></div><div class="delivery-sign"><div class="sign-title"><span>امضا *</span><button class="mainbtn gray" id="clearSignature" type="button">پاک کردن</button></div><div class="signature-wrap"><canvas id="signatureCanvas" width="600" height="210"></canvas></div></div><div class="sheet-actions delivery-actions"><button class="mainbtn gray" data-close="deliveryModal">انصراف</button><button class="mainbtn green" id="confirmDelivery">✓ ثبت تحویل</button></div></div></div>
 
 <div class="modal" id="contactModal"><div class="sheet"><div class="sheet-head"><h3 id="contactTitle">افزودن مخاطب</h3><button class="close" data-close="contactModal">×</button></div><div class="formgrid"><div class="field full"><label>نام و نام خانوادگی *</label><input id="contactName" placeholder="مثلاً علی رضایی"></div><div class="field full"><label>شماره تماس *</label><input id="contactPhone" inputmode="tel" placeholder="0912xxxxxxxx"></div></div><p class="hint">مخاطب در برنامه ذخیره می‌شود. برای ارسال پیام، برنامه پیامک گوشی باز می‌شود و شماره و متن آماده داخل آن قرار می‌گیرد؛ ارسال نهایی با شماست.</p><div class="sheet-actions"><button class="mainbtn gray" data-close="contactModal">انصراف</button><button class="mainbtn blue" id="saveContact">ذخیره مخاطب</button></div></div></div>
 <div class="modal" id="scanModal"><div class="sheet"><div class="sheet-head"><h3>اسکن زنده QR و بارکد</h3><button class="close" data-close="scanModal">×</button></div><div class="scan-box"><video id="scanVideo" playsinline muted></video><div class="scan-guide"></div></div><div class="scan-status" id="scanStatus">دوربین را مقابل QR یا بارکد قرار دهید؛ پس از تشخیص، ذخیره خودکار انجام می‌شود.</div><div class="sheet-actions"><button class="mainbtn gray scan-stop" id="stopScanBtn">توقف دوربین</button><button class="mainbtn blue" id="restartScanBtn">شروع اسکن زنده</button></div></div></div>
